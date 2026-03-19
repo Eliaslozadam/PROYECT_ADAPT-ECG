@@ -1,0 +1,26 @@
+[
+  {
+    "fecha": "2026-03-18 19:10",
+    "registro": "100",
+    "acc_antes": 0.9855,
+    "acc_despues": 0.9908,
+    "f1_antes": 0.6642,
+    "f1_despues": 0.8429,
+    "n_latidos": 2272,
+    "buffer_size": 2000,
+    "epocas": 5,
+    "lr": 0.0001
+  },
+  {
+    "fecha": "2026-03-18 19:10",
+    "registro": "103",
+    "acc_antes": 0.7769,
+    "acc_despues": 0.999,
+    "f1_antes": 0.2929,
+    "f1_despues": 0.4998,
+    "n_latidos": 2084,
+    "buffer_size": 2000,
+    "epocas": 5,
+    "lr": 0.0001
+  }
+]

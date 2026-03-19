@@ -1,1 +1,12 @@
 .venv/
+data/raw/
+data/processed/
+mit-bih-arrhythmia-database-1.0.0/
+Archivos de Google Colab/
+.tmp.driveupload/
+.tmp.drivedownload/
+__pycache__/
+*.pyc
+.env
+.ipynb_checkpoints/
+.claude/

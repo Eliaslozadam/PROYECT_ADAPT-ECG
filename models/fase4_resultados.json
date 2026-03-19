@@ -1,0 +1,164 @@
+{
+  "dataset": {
+    "total_latidos": 94627,
+    "latidos_prueba": 75702,
+    "clases": [
+      "N",
+      "S",
+      "V",
+      "F",
+      "Q"
+    ],
+    "distribucion_prueba": {
+      "N": 60022,
+      "S": 2437,
+      "V": 5773,
+      "F": 649,
+      "Q": 6821
+    }
+  },
+  "metricas_globales": {
+    "estatico": {
+      "accuracy": 0.8872,
+      "f1_macro": 0.7381,
+      "f1_weighted": 0.9114,
+      "precision_macro": 0.6891,
+      "recall_macro": 0.9248
+    },
+    "adaptativo": {
+      "accuracy": 0.9741,
+      "f1_macro": 0.8954,
+      "f1_weighted": 0.9736,
+      "precision_macro": 0.9255,
+      "recall_macro": 0.8699
+    },
+    "mejora": {
+      "accuracy": 0.0869,
+      "f1_macro": 0.1573,
+      "f1_weighted": 0.0622,
+      "precision_macro": 0.2364,
+      "recall_macro": -0.0549
+    }
+  },
+  "metricas_por_clase": {
+    "estatico": {
+      "N": {
+        "precision": 0.9932,
+        "sensibilidad": 0.8711,
+        "especificidad": 0.9772,
+        "f1": 0.9281
+      },
+      "S": {
+        "precision": 0.2682,
+        "sensibilidad": 0.9101,
+        "especificidad": 0.9174,
+        "f1": 0.4143
+      },
+      "V": {
+        "precision": 0.9227,
+        "sensibilidad": 0.9321,
+        "especificidad": 0.9936,
+        "f1": 0.9274
+      },
+      "F": {
+        "precision": 0.2953,
+        "sensibilidad": 0.9322,
+        "especificidad": 0.9808,
+        "f1": 0.4485
+      },
+      "Q": {
+        "precision": 0.9661,
+        "sensibilidad": 0.9786,
+        "especificidad": 0.9966,
+        "f1": 0.9723
+      }
+    },
+    "adaptativo": {
+      "N": {
+        "precision": 0.9811,
+        "sensibilidad": 0.9905,
+        "especificidad": 0.9268,
+        "f1": 0.9858
+      },
+      "S": {
+        "precision": 0.8132,
+        "sensibilidad": 0.7378,
+        "especificidad": 0.9944,
+        "f1": 0.7737
+      },
+      "V": {
+        "precision": 0.9616,
+        "sensibilidad": 0.9328,
+        "especificidad": 0.9969,
+        "f1": 0.947
+      },
+      "F": {
+        "precision": 0.8906,
+        "sensibilidad": 0.7149,
+        "especificidad": 0.9992,
+        "f1": 0.7932
+      },
+      "Q": {
+        "precision": 0.9812,
+        "sensibilidad": 0.9736,
+        "especificidad": 0.9982,
+        "f1": 0.9774
+      }
+    }
+  },
+  "auc_roc": {
+    "estatico": {
+      "N": 0.9909,
+      "S": 0.9743,
+      "V": 0.998,
+      "F": 0.993,
+      "Q": 0.9996
+    },
+    "adaptativo": {
+      "N": 0.9913,
+      "S": 0.974,
+      "V": 0.9989,
+      "F": 0.9939,
+      "Q": 0.9997
+    }
+  },
+  "mcnemar": {
+    "statistic": 5342.2909,
+    "p_valor": 0.0,
+    "significativo": true,
+    "n00": 1199,
+    "n01": 761,
+    "n10": 7341,
+    "n11": 66401
+  },
+  "evolucion_lotes": {
+    "accuracy_estatico": [
+      88.8824,
+      88.6922,
+      88.6922,
+      88.6764,
+      88.8149
+    ],
+    "accuracy_adaptativo": [
+      97.284,
+      97.4795,
+      97.2576,
+      97.321,
+      97.5855
+    ],
+    "f1_estatico": [
+      0.7372,
+      0.7353,
+      0.7423,
+      0.7374,
+      0.7371
+    ],
+    "f1_adaptativo": [
+      0.8888,
+      0.8926,
+      0.9002,
+      0.883,
+      0.9051
+    ]
+  }
+}
