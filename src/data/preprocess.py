@@ -1,7 +1,9 @@
 """
 preprocess.py
 =============
-Modulo de preprocesamiento de senales ECG - Fase 1 del pipeline CARDIA-RT ISRA.
+Modulo de preprocesamiento de senales ECG - Fase 1 del pipeline ADAPT-ECG.
+Sistema inteligente con reentrenamiento continuo para la deteccion
+adaptativa de patologias cardiovasculares basado en senales ECG.
 
 Responsabilidades:
     1. Filtrado pasa-banda (0.5-40 Hz) para eliminar ruido de baja frecuencia

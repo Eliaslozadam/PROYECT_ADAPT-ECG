@@ -1,6 +1,8 @@
 """
-app.py — UI Streamlit de ADAPT-ECG
-===================================
+app.py — UI Streamlit
+=====================
+Sistema inteligente con reentrenamiento continuo para la detección
+adaptativa de patologías cardiovasculares basado en señales ECG
 Modos:
   1. MIT-BIH / carpeta personalizada: inferencia + reentrenamiento incremental.
   2. CSV propio: inferencia sobre señal subida.
@@ -412,9 +414,9 @@ def plot_loss_curve(losses):
 # ══════════════════════════════════════════════════════════════════════════════
 # APP
 # ══════════════════════════════════════════════════════════════════════════════
-st.set_page_config(page_title="ADAPT-ECG", page_icon="🫀", layout="wide")
-st.markdown("## 🫀 ADAPT-ECG")
-st.caption("Sistema Adaptativo de Detección de Arritmias — Residencia Profesional ITT · Elias Bejarano Lozada")
+st.set_page_config(page_title="Reentrenamiento-ECG", page_icon="🫀", layout="wide")
+st.markdown("## 🫀 Reentrenamiento-ECG")
+st.caption("Sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares basado en señales ECG — Residencia Profesional ITT · Elias Bejarano Lozada")
 st.divider()
 
 # ─── Sidebar ──────────────────────────────────────────────────────────────────
@@ -584,7 +586,7 @@ with tab_analysis:
             2. **Segmenta** latidos usando los picos R anotados (71 muestras c/u)
             3. **Inferencia** con la CNN — predicción de clase por latido
             4. **Comparación** predicción vs etiqueta real del cardiólogo
-            5. **Métricas**: Accuracy, F1, Sensibilidad, Especificidad, Matriz de confusión
+            5. **Métricas**: Accuracy, F1, Sensibilidad, Especificidad
             """)
             st.stop()
 
@@ -611,11 +613,12 @@ with tab_analysis:
                         use_container_width=True, key="ecg_main")
         st.divider()
 
-        col_d, col_cm = st.columns(2)
-        with col_d:
-            st.plotly_chart(plot_distribution(preds_before), use_container_width=True, key="dist_before")
-        with col_cm:
-            st.image(plot_confusion(y_true, preds_before), use_container_width=True)
+        st.plotly_chart(plot_distribution(preds_before), use_container_width=True, key="dist_before")
+        # col_d, col_cm = st.columns(2)
+        # with col_d:
+        #     st.plotly_chart(plot_distribution(preds_before), use_container_width=True, key="dist_before")
+        # with col_cm:
+        #     st.image(plot_confusion(y_true, preds_before), use_container_width=True)
 
         fig_bars, df_metrics = plot_per_class_bars(y_true, preds_before)
         col_bar, col_tbl = st.columns([3, 2])

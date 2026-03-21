@@ -20,6 +20,8 @@ Que hace este script:
 Autor: Elias Bejarano Lozada
 Institucion: Instituto Tecnologico de Tijuana
 Residencia Profesional - Ingenieria Biomedica
+Sistema inteligente con reentrenamiento continuo para la deteccion
+adaptativa de patologias cardiovasculares basado en senales ECG
 """
 
 import sys

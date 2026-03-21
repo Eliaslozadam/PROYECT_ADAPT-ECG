@@ -1,7 +1,9 @@
 """
 ingest.py
 =========
-Módulo de adquisición de datos — Fase 1 del pipeline CARDIA-RT ISRA.
+Módulo de adquisición de datos — Fase 1 del pipeline ADAPT-ECG.
+Sistema inteligente con reentrenamiento continuo para la detección
+adaptativa de patologías cardiovasculares basado en señales ECG.
 
 Responsabilidades:
     - Descargar registros de la MIT-BIH Arrhythmia Database desde PhysioNet

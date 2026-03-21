@@ -1,12 +1,14 @@
-# PROYECT_ADAPT-ECG
+# Sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares basado en señales ECG
 
-Adaptive ECG intelligence system with continuous retraining for cardiovascular pathology detection using the MIT-BIH Arrhythmia Database, signal processing techniques, and deep learning (PyTorch), integrated with an interactive Streamlit interface.
+**ADAPT-ECG** | Residencia Profesional — Ingeniería Biomédica | Instituto Tecnológico de Tijuana | Elias Bejarano Lozada #20213057
+
+Sistema inteligente que combina una Red Neuronal Convolucional 1D con reentrenamiento incremental mediante Replay Buffer para la clasificación adaptativa de arritmias cardiacas en señales ECG, utilizando la base de datos MIT-BIH Arrhythmia Database, procesamiento de señales biomédicas y deep learning (PyTorch), integrado con una interfaz interactiva Streamlit.
 
 ---
 
-## Project Overview
+## Descripción del Proyecto
 
-PROYECT_ADAPT-ECG is a modular biomedical engineering system designed to:
+ADAPT-ECG es un sistema modular de ingeniería biomédica diseñado para:
 
 - Load ECG signals from the MIT-BIH Arrhythmia Database (PhysioNet)
 - Apply signal preprocessing (bandpass filtering + normalization)

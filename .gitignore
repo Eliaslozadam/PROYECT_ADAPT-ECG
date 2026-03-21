@@ -1,12 +1,25 @@
+# Entorno virtual
 .venv/
+
+# Datos grandes (MIT-BIH y procesados)
 data/raw/
 data/processed/
 mit-bih-arrhythmia-database-1.0.0/
-Archivos de Google Colab/
+
+# Archivos temporales de Google Drive
 .tmp.driveupload/
 .tmp.drivedownload/
+
+# Modelos grandes (>50 MB súbelos a Drive/Releases)
+# models/*.pth   ← descomenta si los .pth son muy grandes
+
+# Python
 __pycache__/
 *.pyc
 .env
+
+# Jupyter checkpoints
 .ipynb_checkpoints/
+
+# Claude
 .claude/

@@ -1,7 +1,9 @@
 """
 settings.py
 ===========
-Parámetros globales del sistema CARDIA-RT ISRA.
+Parámetros globales del sistema ADAPT-ECG.
+Sistema inteligente con reentrenamiento continuo para la detección
+adaptativa de patologías cardiovasculares basado en señales ECG.
 
 Centraliza rutas, constantes de preprocesamiento y configuración del modelo
 para que todos los módulos compartan los mismos valores sin hardcodear.
