@@ -1,0 +1,132 @@
+%TCIDATA{Version=5.50.0.2953}
+%TCIDATA{LaTeXparent=0,0,main.tex}
+
+\pretolerance=500000 \tolerance=500000
+
+\chapter{Marco teórico}
+
+El presente capítulo establece el fundamento conceptual y científico sobre el cual se sustenta el desarrollo del sistema propuesto. Se abordan, en primer término, los principios biofísicos de la señal electrocardiográfica y las principales patologías detectables mediante su análisis. Posteriormente, se describen los estándares de clasificación de arritmias y la base de datos de referencia empleada en el proyecto. El capítulo continúa con los fundamentos del preprocesamiento de señales, el aprendizaje automático supervisado, las redes neuronales convolucionales, el \textit{concept drift}, el aprendizaje incremental, la técnica de Replay Buffer y las métricas de evaluación utilizadas para cuantificar el rendimiento del sistema.
+
+\section{La señal electrocardiográfica}
+
+El electrocardiograma (ECG) es el registro gráfico de la actividad eléctrica generada por el corazón durante su ciclo de contracción y relajación. El miocardio produce corrientes eléctricas que se propagan a través de los tejidos corporales hasta la superficie de la piel, donde pueden ser captadas mediante electrodos de superficie. Estas corrientes originan diferencias de potencial que, al ser amplificadas y registradas en función del tiempo, dan lugar a la señal ECG. La electrocardiografía es una técnica no invasiva, de bajo costo y ampliamente disponible, lo que la convierte en el método de diagnóstico cardiovascular más utilizado en la práctica clínica mundial.
+
+La señal ECG se caracteriza por la presencia de un patrón repetitivo denominado complejo PQRST, cuya morfología refleja los eventos eléctricos del ciclo cardíaco. La onda P representa la despolarización auricular: la propagación del impulso eléctrico desde el nodo sinoauricular (SA) a través de las aurículas derecha e izquierda. El segmento PR corresponde al retardo fisiológico en el nodo auriculoventricular (AV), que sincroniza la contracción auricular con la ventricular. El complejo QRS refleja la despolarización ventricular, el evento eléctrico de mayor amplitud del ciclo cardíaco, directamente responsable de la contracción de los ventrículos. La onda T representa la repolarización ventricular, es decir, el restablecimiento del potencial de membrana en los cardiomiocitos ventriculares. La duración total del complejo PQRST en un adulto sano oscila típicamente entre 600 ms y 1,000 ms, lo que corresponde a una frecuencia cardíaca de 60 a 100 latidos por minuto.
+
+El pico R del complejo QRS es el hito morfológico más prominente de la señal ECG. Su elevada amplitud y rapidez de cambio lo hacen fácilmente identificable mediante algoritmos computacionales. En el contexto del análisis automático, la detección del pico R cumple una función central: sirve como punto de referencia para la segmentación de latidos individuales. Conocida la posición temporal del pico R, es posible extraer una ventana fija de muestras centrada en dicho punto, obteniendo así una representación compacta y estandarizada de cada latido, adecuada para su procesamiento por modelos de aprendizaje automático.
+
+La importancia clínica del ECG radica en su capacidad de revelar una amplia variedad de alteraciones cardíacas: arritmias, bloqueos de conducción, isquemia miocárdica, hipertrofia ventricular, entre otras. El diagnóstico correcto y oportuno a partir del ECG puede ser determinante para el pronóstico del paciente. Sin embargo, la interpretación manual del ECG requiere experiencia clínica considerable y es susceptible de variabilidad inter-observador. Por este motivo, el análisis computacional automático de señales ECG constituye una línea de investigación activa y de alto impacto en la ingeniería biomédica.
+
+\section{Patologías cardiovasculares y arritmias}
+
+Las enfermedades cardiovasculares constituyen la principal causa de muerte en el mundo. Según la Organización Mundial de la Salud (OMS), estas enfermedades provocan aproximadamente 17.9 millones de defunciones al año, lo que representa el 31\% de la mortalidad global \cite{WHO2024}. En México, el Instituto Nacional de Estadística y Geografía (INEGI) reportó en 2023 que las enfermedades del corazón ocupan el primer lugar en causas de muerte, con alrededor de 220,000 defunciones anuales \cite{INEGI2024}.
+
+Una arritmia cardíaca se define como cualquier alteración en la frecuencia, regularidad, origen o conducción del impulso eléctrico cardíaco. Las arritmias pueden clasificarse según su origen anatómico (supraventriculares o ventriculares), su mecanismo (automatismo anormal, reentrada, actividad desencadenada) o su impacto hemodinámico (benignas, potencialmente malignas o malignas). Las arritmias ventriculares graves, en particular la fibrilación ventricular, son la causa principal de muerte súbita cardíaca, un evento que provoca el deceso en minutos sin intervención médica inmediata.
+
+En el contexto del estándar AAMI EC57, las arritmias de interés clínico se agrupan en cinco clases basadas en el tipo de latido. El latido normal (N) comprende todos los latidos de conducción normal, incluyendo latidos de marcapasos con morfología normal. La contracción auricular prematura (S, supraventricular ectópico) es un latido que se origina antes de tiempo en una zona de las aurículas distinta al nodo SA. La contracción ventricular prematura (V, ventricular ectópico) se origina en el miocardio ventricular y genera una morfología QRS ancha y aberrante. Los latidos de fusión (F) resultan de la despolarización simultánea del ventrículo por un impulso normal y uno ectópico ventricular. Finalmente, los latidos inclasificables (Q) agrupan morfologías atípicas que no encajan en las categorías anteriores.
+
+El ECG representa el método de referencia (\textit{gold standard}) para la detección y clasificación de arritmias porque cada tipo de arritmia deja una huella morfológica característica en la señal ECG, lo que permite su identificación sin procedimientos invasivos. La automatización de este proceso mediante aprendizaje profundo ha demostrado resultados comparables o superiores a la interpretación de especialistas certificados \cite{Hannun2019}.
+
+\section{Estándar AAMI EC57 para clasificación de arritmias}
+
+La Association for the Advancement of Medical Instrumentation (AAMI) es una organización sin fines de lucro fundada en 1967 que tiene como misión promover la comprensión, seguridad y eficacia de las tecnologías médicas. En el campo del procesamiento de señales cardíacas, el estándar ANSI/AAMI EC57:2012, titulado \textit{``Testing and Reporting Performance Results of Cardiac Rhythm and ST Segment Measurement Algorithms''}, define los procedimientos de prueba y las métricas de reporte que deben emplearse para evaluar algoritmos de análisis de ECG \cite{AAMI2012}.
+
+El estándar EC57 define una agrupación de las anotaciones de latidos en cinco superclases: N (latidos normales y similares), S (ectópicos supraventriculares), V (ectópicos ventriculares), F (latidos de fusión) y Q (inclasificables). Esta agrupación permite consolidar las numerosas etiquetas individuales presentes en bases de datos como MIT-BIH, que contiene más de 15 tipos de anotación, en un conjunto manejable de categorías con relevancia clínica bien definida.
+
+La adopción del estándar AAMI EC57 en este proyecto responde a la necesidad de garantizar la comparabilidad de los resultados con la literatura científica existente. La mayoría de los estudios de referencia en clasificación automática de arritmias, incluyendo los trabajos de Acharya et al.\ \cite{Acharya2017} y Hannun et al.\ \cite{Hannun2019}, emplean esta misma agrupación, lo que permite contrastar directamente el rendimiento del modelo desarrollado con el estado del arte.
+
+\section{Base de datos MIT-BIH Arrhythmia Database}
+
+La MIT-BIH Arrhythmia Database fue desarrollada conjuntamente por el Massachusetts Institute of Technology (MIT) y el Beth Israel Hospital de Boston, publicada por primera vez en 1980 \cite{Moody2001}. Desde entonces ha sido el estándar de referencia mundial para el desarrollo y evaluación de algoritmos de análisis de ECG. La base de datos se encuentra disponible de forma pública y gratuita a través de PhysioNet, una plataforma de acceso abierto a datos fisiológicos de investigación.
+
+La base de datos comprende 48 registros de ECG de dos canales, obtenidos de 47 sujetos distintos (un sujeto aporta dos registros). Cada registro tiene una duración de aproximadamente 30 minutos, con una frecuencia de muestreo de 360 Hz y una resolución de amplitud de 11 bits por muestra, lo que corresponde a una ganancia de 200 unidades de amplitud por milivoltio. Los registros fueron seleccionados para incluir una representación equilibrada de ritmos normales y diversas arritmias clínicamente relevantes.
+
+Cada registro está almacenado en tres tipos de archivo: el archivo de cabecera (\texttt{.hea}), que contiene metadatos del registro; el archivo de datos (\texttt{.dat}), que almacena las muestras de señal en formato binario comprimido; y el archivo de anotaciones (\texttt{.atr}), que contiene las etiquetas de cada latido determinadas por cardiólogos expertos. Las anotaciones fueron realizadas de forma independiente por dos cardiólogos, con un proceso de consenso para resolver discrepancias, lo que garantiza la alta calidad de las etiquetas de referencia.
+
+En el contexto del presente proyecto, se procesaron los 48 registros de la base de datos, obteniendo un total de 94,627 latidos individuales tras la aplicación del protocolo de preprocesamiento. La distribución de clases bajo el estándar AAMI EC57 es la siguiente: clase N (normal) con 75,052 latidos (79.3\%), clase V (ventricular ectópico) con 7,190 latidos (7.6\%), clase Q (no clasificable) con 8,518 latidos (9.0\%), clase S (supraventricular ectópico) con 3,028 latidos (3.2\%), y clase F (fusión) con 839 latidos (0.8\%).
+
+\section{Preprocesamiento de señales ECG}
+
+El preprocesamiento de la señal ECG es una etapa fundamental que precede a cualquier análisis automático. La señal adquirida de forma directa contiene, además de la información cardíaca de interés, diversas fuentes de ruido e interferencia que pueden degradar el rendimiento de los algoritmos de clasificación. Entre las principales fuentes de ruido se encuentran la interferencia de línea eléctrica (50 o 60 Hz), el artefacto de movimiento, la variación de la línea base y el ruido muscular de alta frecuencia.
+
+El protocolo de preprocesamiento implementado en este proyecto incluye, como primer paso, la aplicación de un filtro pasa-banda entre 0.5 y 40 Hz. El límite inferior de 0.5 Hz elimina la deriva de línea base de baja frecuencia, mientras que el límite superior de 40 Hz suprime las interferencias de alta frecuencia sin afectar las componentes espectrales relevantes del ECG. El filtro utilizado es de tipo Butterworth de orden 4, implementado mediante la función \texttt{sosfilt} de la biblioteca SciPy, que aplica el filtrado hacia adelante y hacia atrás para evitar el desfase de fase.
+
+Tras el filtrado, se procede a la detección de picos R mediante el algoritmo de detección de máximos locales de SciPy. Se aplica un umbral adaptativo y una distancia mínima entre picos equivalente a una frecuencia cardíaca máxima de 300 latidos por minuto. Una vez localizados los picos R, se extrae una ventana de 71 muestras centrada en cada pico: 35 muestras antes del pico y 36 muestras después. Este tamaño de ventana, equivalente a aproximadamente 197 ms a 360 Hz, es suficiente para capturar la morfología completa del complejo QRS y las porciones adyacentes de las ondas P y T en la gran mayoría de los latidos de la base de datos.
+
+Cada latido segmentado se somete a normalización \textit{z-score} individualizada: se calcula la media y la desviación estándar de las 71 muestras del latido y se transforma la ventana para que tenga media cero y desviación estándar unitaria. Esta normalización elimina las diferencias de amplitud absoluta entre latidos debidas a variabilidad en la colocación de electrodos, impedancia de la piel o ganancia del amplificador, permitiendo que el modelo se enfoque en la morfología relativa de cada latido.
+
+\section{Aprendizaje automático supervisado para clasificación de ECG}
+
+El aprendizaje automático supervisado es una rama de la inteligencia artificial en la que un modelo es entrenado a partir de un conjunto de ejemplos etiquetados, es decir, pares (entrada, salida deseada). El objetivo del modelo es aprender una función de mapeo que, dado un ejemplo nuevo no visto durante el entrenamiento, sea capaz de predecir su etiqueta con la mayor precisión posible. En el contexto de la clasificación de latidos ECG, cada ejemplo de entrada es un vector de 71 muestras de señal normalizada, y la etiqueta de salida es una de las cinco clases AAMI (N, S, V, F, Q).
+
+El advenimiento de las redes neuronales profundas (\textit{Deep Learning}) supuso un cambio de paradigma al permitir el aprendizaje automático de representaciones directamente desde la señal cruda, eliminando la necesidad de ingeniería de características manual. Acharya et al.\ (2017) propusieron una CNN de 9 capas aplicada directamente a segmentos de ECG, obteniendo una precisión del 94.03\% en la clasificación de cinco tipos de arritmias sobre MIT-BIH \cite{Acharya2017}. Hannun et al.\ (2019) demostraron que un modelo de aprendizaje profundo entrenado sobre más de 90,000 registros ECG alcanzaba un rendimiento comparable al de cardiólogos certificados \cite{Hannun2019}.
+
+El desbalance de clases es un desafío inherente a los datos clínicos de ECG. En MIT-BIH, los latidos normales representan el 79.3\% del total, mientras que la clase F (fusión) constituye apenas el 0.8\%. Un modelo entrenado con una función de pérdida estándar sobre datos desbalanceados tiende a desarrollar un sesgo hacia la clase mayoritaria. Para mitigar este problema, en este proyecto se emplea una función de pérdida NLLLoss con pesos de clase ponderados inversamente proporcionales a su frecuencia, de modo que las clases minoritarias reciben un mayor peso en el cálculo del gradiente durante el entrenamiento.
+
+\section{Redes Neuronales Convolucionales (CNN)}
+
+Las redes neuronales convolucionales (CNN, por sus siglas en inglés \textit{Convolutional Neural Networks}) son una clase de redes neuronales profundas especialmente diseñadas para el procesamiento de datos con estructura espacial o temporal. La operación central de una CNN es la convolución discreta: dado un tensor de entrada $x$ y un filtro (kernel) $w$ de tamaño $k$, la salida de la capa convolucional en la posición $i$ se define como
+\begin{equation}
+y[i] = \sum_{j=0}^{k-1} x[i+j] \cdot w[j],
+\end{equation}
+en el caso unidimensional. El filtro $w$ contiene parámetros aprendibles que se optimizan durante el entrenamiento mediante el algoritmo de retropropagación del gradiente.
+
+La principal ventaja de las CNN para el procesamiento de señales temporales radica en la propiedad de invarianza a la traslación. Al aplicar el mismo filtro en cada posición de la señal de entrada, la CNN detecta el patrón representado por el filtro independientemente de su posición temporal. Esta propiedad es especialmente valiosa en el análisis de ECG, donde la morfología del complejo QRS puede presentarse en distintas posiciones dentro de la ventana de análisis.
+
+Una CNN típica para clasificación de señales biomédicas está compuesta por varios bloques convolucionales seguidos de un clasificador final. Cada bloque convolucional generalmente incluye: una capa convolucional 1D (\texttt{Conv1d}) que aplica múltiples filtros aprendibles sobre la entrada; una capa de normalización por lotes (\texttt{BatchNorm1d}) que normaliza la activación de cada neurona a lo largo del \textit{minibatch}; una función de activación no lineal (típicamente ReLU); y una capa de submuestreo (\texttt{MaxPool1d}) que reduce la resolución temporal de los mapas de características.
+
+La arquitectura específica implementada en este proyecto (ECG\_CNN) está compuesta por tres bloques convolucionales seguidos de un clasificador denso. El primer bloque aplica 32 filtros de tamaño 5 sobre la señal de entrada de un canal. El segundo bloque aplica 64 filtros de tamaño 5, y el tercer bloque aplica 128 filtros de tamaño 3, aumentando progresivamente la profundidad de la representación. Tras los tres bloques convolucionales se aplica una capa \texttt{AdaptiveAvgPool1d} para producir una representación de longitud fija, seguida por un clasificador totalmente conectado compuesto por \texttt{Flatten}, \texttt{Linear}(128, 64), \texttt{ReLU}, \texttt{Dropout}(0.3) y \texttt{Linear}(64, 5). El modelo cuenta con 44,229 parámetros entrenables.
+
+El entrenamiento del modelo base se realiza durante 30 épocas con un tamaño de \textit{minibatch} de 64 latidos, utilizando el optimizador Adam con tasa de aprendizaje inicial de $10^{-3}$ y decaimiento de peso de $10^{-4}$. La función de pérdida empleada es NLLLoss con pesos de clase ponderados inversamente proporcionales a su frecuencia en el conjunto de entrenamiento.
+
+\section{Concept drift y degradación de modelos estáticos}
+
+El concepto de \textit{concept drift} hace referencia al fenómeno por el cual la relación estadística entre las variables de entrada y la variable objetivo de un modelo de aprendizaje automático cambia a lo largo del tiempo. En términos formales, si $P_t(X, y)$ denota la distribución conjunta de los datos en el instante $t$, existe \textit{concept drift} cuando $P_{t_1}(X, y)$ difiere de $P_{t_2}(X, y)$ para $t_1 \neq t_2$ \cite{Reshad2025}.
+
+En el contexto específico de la clasificación de ECG, el \textit{concept drift} puede manifestarse por múltiples causas. La variabilidad fisiológica interindividual implica que la morfología del ECG de un paciente nuevo puede diferir sistemáticamente de la de los pacientes del conjunto de entrenamiento. Las diferencias entre equipos de adquisición de ECG (distintos fabricantes, distintas derivaciones, distintas frecuencias de muestreo) introducen variaciones sistemáticas en la escala, el ruido y la morfología de las señales. Adicionalmente, los cambios en el estado clínico de un mismo paciente a lo largo del tiempo producen variaciones en la morfología del ECG.
+
+El impacto del \textit{concept drift} en el rendimiento diagnóstico de un modelo estático puede ser severo. Un modelo entrenado sobre datos históricos que no captura la distribución actual de los datos puede presentar degradaciones significativas en métricas como la sensibilidad para clases minoritarias o la especificidad, con el consiguiente aumento de falsas alarmas. La limitación fundamental de los modelos estáticos frente al \textit{concept drift} radica en su incapacidad de actualizar sus parámetros ante nuevos datos sin recurrir a un reentrenamiento completo desde cero.
+
+\section{Aprendizaje incremental y reentrenamiento continuo}
+
+El aprendizaje incremental, también denominado aprendizaje continuo (\textit{Continual Learning}) o aprendizaje durante toda la vida (\textit{Lifelong Learning}), es un paradigma de entrenamiento en el que el modelo actualiza sus parámetros de forma secuencial a partir de flujos de datos que llegan a lo largo del tiempo, sin necesidad de acceder al conjunto de datos histórico completo en cada actualización. El objetivo es que el modelo se adapte a nuevos patrones y distribuciones de datos (aprendizaje plástico) sin olvidar el conocimiento adquirido en etapas anteriores (retención estable).
+
+El principal obstáculo del aprendizaje incremental es el fenómeno de \textit{Catastrophic Forgetting} (olvido catastrófico), documentado experimentalmente por McCloskey y Cohen en 1989 \cite{McCloskey1989}. Cuando una red neuronal es entrenada secuencialmente sobre distintas tareas o distribuciones de datos, los pesos aprendidos para las tareas anteriores son sobreescritos por los pesos necesarios para la nueva tarea. Esto ocurre porque el descenso de gradiente modifica los parámetros del modelo en la dirección que minimiza el error sobre los datos actuales, sin tener en cuenta el efecto de dichas modificaciones sobre el rendimiento en los datos anteriores.
+
+En la literatura se han propuesto tres grandes familias de estrategias para mitigar el \textit{Catastrophic Forgetting}: los métodos de regularización (como \textit{Elastic Weight Consolidation}, EWC), los métodos de arquitecturas progresivas, y los métodos basados en memoria de repetición (\textit{Replay}). Este último enfoque, adoptado en el presente proyecto, almacena un subconjunto representativo de los datos históricos en un buffer y los incorpora en cada actualización del modelo junto con los nuevos datos.
+
+\section{Técnica de Replay Buffer}
+
+El Replay Buffer (buffer de repetición) es una estructura de datos que almacena un subconjunto representativo de los ejemplos de entrenamiento observados anteriormente. Durante el proceso de aprendizaje incremental, cuando se recibe un nuevo lote de datos, el modelo se entrena sobre una mezcla de los nuevos datos y de muestras extraídas aleatoriamente del buffer, de forma que la función de pérdida incluye contribuciones de ambas distribuciones. Este mecanismo obliga al modelo a mantener su rendimiento sobre los datos pasados mientras aprende los nuevos patrones.
+
+El tamaño del buffer es un hiperparámetro crítico que establece un compromiso entre la capacidad de retención del conocimiento pasado y el costo de almacenamiento y cómputo. En este proyecto se emplea un buffer de capacidad máxima de 2,000 latidos. Cuando el buffer está lleno y se recibe un nuevo latido, este reemplaza a uno existente seleccionado de forma aleatoria uniforme, garantizando que ninguna clase ni período temporal domine el buffer a largo plazo.
+
+Los parámetros del reentrenamiento incremental difieren deliberadamente de los del entrenamiento base. La tasa de aprendizaje se reduce a $10^{-4}$ (diez veces menor que en el entrenamiento base de $10^{-3}$), lo que limita la magnitud de las modificaciones en los pesos del modelo en cada actualización, reduciendo el riesgo de sobreescribir representaciones útiles. El número de épocas por lote se establece en 5, suficiente para que el modelo converja sobre el nuevo lote sin sobreajustarse. En cada lote de reentrenamiento se incluye un número de muestras del buffer equivalente al 50\% del tamaño del nuevo lote.
+
+\section{Métricas de evaluación de modelos de clasificación}
+
+La evaluación rigurosa del rendimiento de un clasificador requiere el uso de múltiples métricas complementarias, especialmente en presencia de desbalance de clases. La métrica más intuitiva es la exactitud (\textit{Accuracy}), definida como la proporción de predicciones correctas sobre el total de predicciones:
+\begin{equation}
+\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN},
+\end{equation}
+donde $TP$ son los verdaderos positivos, $TN$ los verdaderos negativos, $FP$ los falsos positivos y $FN$ los falsos negativos.
+
+La sensibilidad (\textit{Recall}) mide la capacidad del clasificador para detectar correctamente los casos positivos:
+\begin{equation}
+\text{Recall} = \frac{TP}{TP + FN}.
+\end{equation}
+La precisión (\textit{Precision}) mide la proporción de predicciones positivas que son verdaderamente positivas:
+\begin{equation}
+\text{Precision} = \frac{TP}{TP + FP}.
+\end{equation}
+El F1-Score combina ambas métricas en una única métrica armónica:
+\begin{equation}
+F_1 = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}.
+\end{equation}
+Para problemas multiclase con desbalance de clases, se emplea el F1-Score macro, que calcula el F1 por cada clase y promedia sin ponderar por la frecuencia de cada clase, dando igual peso a todas las clases independientemente de su tamaño.
+
+Para comparar estadísticamente el rendimiento de dos clasificadores evaluados sobre el mismo conjunto de datos, se emplea la prueba de McNemar. Esta prueba no paramétrica evalúa si las diferencias en las predicciones de dos clasificadores son estadísticamente significativas. La prueba se basa en una tabla de contingencia $2 \times 2$ que cruza las predicciones correctas e incorrectas de los dos clasificadores:
+\begin{equation}
+\chi^2_{\text{McNemar}} = \frac{(b - c)^2}{b + c},
+\end{equation}
+donde $b$ es el número de ejemplos clasificados correctamente por el primer clasificador pero incorrectamente por el segundo, y $c$ es el número de ejemplos clasificados incorrectamente por el primero pero correctamente por el segundo. Un valor de $p < 0.05$ indica que la diferencia entre los clasificadores es estadísticamente significativa.

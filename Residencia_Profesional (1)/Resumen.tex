@@ -1,0 +1,12 @@
+%TCIDATA{Version=5.50.0.2953}
+%TCIDATA{LaTeXparent=0,0,main.tex}
+
+\pretolerance=2000 \tolerance=3000
+
+\nonumchapter{Resumen}
+
+Las enfermedades cardiovasculares constituyen la principal causa de muerte a nivel mundial, con aproximadamente 17.9 millones de fallecimientos anuales. Su detección temprana depende del análisis correcto de las señales electrocardiográficas (ECG). Los modelos de inteligencia artificial aplicados al análisis de ECG han demostrado alta precisión diagnóstica; sin embargo, su rendimiento se degrada con el tiempo debido al \textit{concept drift}, fenómeno por el cual la distribución estadística de los datos cambia gradualmente. El presente trabajo describe el diseño e implementación de un sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares basado en señales ECG. El sistema fue desarrollado en cuatro fases: (1) adquisición y preprocesamiento de 94,627 latidos de la base de datos MIT-BIH Arrhythmia Database, con filtrado pasa-banda, normalización \textit{z-score} y segmentación centrada en el pico R; (2) entrenamiento de un modelo base de red neuronal convolucional (CNN) de 44,229 parámetros, alcanzando una exactitud de validación del 94.00\%; (3) implementación de un módulo de reentrenamiento continuo mediante la técnica de Replay Buffer con aprendizaje incremental sobre cinco lotes secuenciales; y (4) evaluación comparativa formal entre el modelo estático y el modelo adaptativo. Los resultados obtenidos muestran que el modelo adaptativo alcanzó una exactitud del 97.83\% y un F1-Score macro de 0.9071, frente al 93.54\% y 0.7849 del modelo estático, representando una mejora de 4.29 puntos porcentuales en exactitud y 0.1222 en F1 macro. La prueba estadística de McNemar confirmó que esta diferencia es estadísticamente significativa ($\chi^2 = 5342$, $p \approx 0$). Adicionalmente, se desarrolló una interfaz de usuario con Streamlit que permite la inferencia en tiempo real y el reentrenamiento interactivo del modelo. Los resultados demuestran que el aprendizaje incremental con Replay Buffer es una estrategia eficaz para mantener y mejorar la precisión diagnóstica frente al \textit{concept drift} en señales ECG.
+
+\bigskip
+
+\noindent \textbf{Palabras clave:} Aprendizaje incremental; Arritmias cardíacas; \textit{Concept drift}; Redes neuronales convolucionales; Reentrenamiento continuo; Señales ECG.

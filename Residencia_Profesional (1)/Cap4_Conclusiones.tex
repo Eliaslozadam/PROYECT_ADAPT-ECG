@@ -1,0 +1,54 @@
+%TCIDATA{Version=5.50.0.2953}
+%TCIDATA{LaTeXparent=0,0,Main.tex}
+
+\pretolerance=500000 \tolerance=500000
+
+\chapter{Discusión y conclusiones}
+
+\section{Discusión}
+
+Los resultados obtenidos en el presente proyecto demuestran que el aprendizaje incremental con Replay Buffer es una estrategia eficaz para mitigar el \textit{concept drift} en modelos de clasificación de señales ECG. La mejora de 8.69 puntos porcentuales en exactitud (de 88.72\% a 97.41\%) y de 0.1573 en F1-Score macro (de 0.7381 a 0.8954) observada en la evaluación comparativa formal (Fase 4) confirma la hipótesis planteada en el Capítulo 1: el sistema adaptativo logra mantener y mejorar la precisión diagnóstica conforme recibe nuevos datos, sin necesidad de reentrenamiento completo.
+
+La hipótesis planteada queda respaldada con alta solidez estadística: la prueba de McNemar arrojó $\chi^2 = 5342$ con $p \approx 0$, descartando que la mejora observada sea atribuible al azar. Este resultado es consistente con la literatura de \textit{Continual Learning}, donde se ha demostrado repetidamente que los métodos de Replay superan a los modelos estáticos en escenarios de aprendizaje secuencial \cite{Reshad2025}.
+
+La mejora en el F1-Score macro es particularmente relevante desde una perspectiva clínica. Esta métrica pondera por igual a todas las clases, incluyendo las minoritarias (F: fusión con 0.8\%, S: supraventricular ectópico con 3.2\%). Un aumento de 0.1573 en F1 macro indica que el modelo adaptativo mejoró su capacidad de detectar arritmias clínicamente relevantes pero poco frecuentes, que son precisamente las que un modelo estático con sesgo hacia la clase mayoritaria tiende a ignorar.
+
+En comparación con los trabajos previos reportados en la literatura, la exactitud del 97.41\% obtenida por el modelo adaptativo es comparable a los resultados de Hannun et al.\ \cite{Hannun2019} (97\%) y superior a los reportados por Acharya et al.\ \cite{Acharya2017} (94.03\%), ambos sobre la base de datos MIT-BIH. Sin embargo, es importante señalar que las comparaciones directas entre estudios deben interpretarse con cautela debido a las diferencias en los protocolos de evaluación, las particiones de datos y las agrupaciones de clases empleadas.
+
+La técnica de Replay Buffer demostró ser una solución de bajo costo computacional y alta efectividad. Con un buffer de apenas 2,000 latidos (aproximadamente 2.1\% del dataset total), el sistema fue capaz de preservar el conocimiento histórico y adaptarse a las nuevas distribuciones de datos de manera eficiente. Esto es consistente con los principios de la psicología cognitiva en los que se inspira el método: el hipocampo humano consolida memorias recientes mediante la reactivación selectiva de experiencias pasadas durante el sueño, integrando el nuevo conocimiento sin interferir destructivamente con el ya almacenado \cite{McCloskey1989}.
+
+Una variable relevante observada durante el desarrollo fue la diferencia entre los resultados de Fase 3 (exactitud adaptativa: 97.83\%) y Fase 4 (97.41\%). Esta diferencia se explica porque la Fase 3 evaluó el modelo sobre el lote más reciente (lote 5), sobre el cual el modelo acababa de ser actualizado, mientras que la Fase 4 evaluó sobre los lotes 1 a 4, que representan una distribución más amplia del dataset. Esta diferencia es metodológicamente esperada y no contradice las conclusiones del proyecto.
+
+Entre las limitaciones del trabajo se destaca que la validación se realizó exclusivamente en un entorno de experimentación controlado, con datos de la base MIT-BIH Arrhythmia Database, sin involucrar señales ECG provenientes de pacientes reales en condiciones clínicas. La generalización de los resultados a entornos hospitalarios reales requeriría estudios de validación adicionales con datos multicéntricos, equipos de adquisición heterogéneos y poblaciones de pacientes diversas. Adicionalmente, la metodología de división en lotes secuenciales artificiales, aunque estándar en investigación de \textit{Continual Learning}, constituye una aproximación controlada a la llegada progresiva de datos en escenarios reales.
+
+\section{Conclusiones}
+
+Con base en los resultados y el análisis presentados en este trabajo, se establecen las siguientes conclusiones:
+
+\begin{enumerate}
+\item Se implementó exitosamente un sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares a partir de señales ECG, cumpliendo con el objetivo general del proyecto. El sistema integra una CNN de 44,229 parámetros con un módulo de aprendizaje incremental basado en Replay Buffer, y cuenta con una interfaz de usuario funcional para la inferencia y el reentrenamiento interactivo.
+
+\item El preprocesamiento de la MIT-BIH Arrhythmia Database permitió obtener un dataset de 94,627 latidos normalizados, con una distribución de clases consistente con la literatura de referencia (clase N: 79.3\%, clase V: 7.6\%). El pipeline de preprocesamiento implementado es reproducible y exportable a otras bases de datos de ECG con frecuencia de muestreo de 360 Hz.
+
+\item El modelo CNN base alcanzó una exactitud de validación del 94.00\% tras 30 épocas de entrenamiento, estableciendo una línea base competitiva comparable con los resultados reportados por Acharya et al.\ \cite{Acharya2017} (94.03\%) con una arquitectura significativamente más ligera (44,229 parámetros frente a modelos de mayor profundidad).
+
+\item El módulo de reentrenamiento continuo con Replay Buffer logró una mejora estadísticamente significativa de 8.69 puntos porcentuales en exactitud (de 88.72\% a 97.41\%) y de 0.1573 en F1-Score macro (de 0.7381 a 0.8954) en la evaluación comparativa formal, validando la hipótesis del proyecto. La prueba de McNemar confirmó la significancia estadística de esta diferencia ($\chi^2 = 5342$, $p \approx 0$).
+
+\item El sistema demostró que el aprendizaje incremental con Replay Buffer es una estrategia viable y eficiente para mitigar el \textit{concept drift} en clasificación de ECG, con bajo costo computacional (buffer de 2,000 latidos, 5 épocas por lote, tasa de aprendizaje reducida) y alta efectividad práctica.
+\end{enumerate}
+
+\section{Trabajo futuro}
+
+Con base en las limitaciones identificadas y los resultados obtenidos, se proponen las siguientes líneas de trabajo futuro:
+
+\begin{enumerate}
+\item \textbf{Validación clínica}: Extender la evaluación del sistema a datos de ECG provenientes de entornos hospitalarios reales, con señales adquiridas por equipos heterogéneos y poblaciones de pacientes diversas, para verificar la generalización del modelo adaptativo.
+
+\item \textbf{Estrategias avanzadas de Replay}: Explorar estrategias de selección inteligente de muestras para el Replay Buffer, como el \textit{herding} o la selección basada en incertidumbre, que podrían mejorar la eficiencia del buffer con menor capacidad.
+
+\item \textbf{Arquitecturas más profundas}: Evaluar arquitecturas CNN más profundas o arquitecturas híbridas CNN-LSTM para determinar si ofrecen mejoras adicionales en el contexto del aprendizaje incremental.
+
+\item \textbf{Despliegue en la nube}: Integrar el sistema con plataformas de computación en la nube y servicios de telemedicina, habilitando el reentrenamiento continuo en escenarios de telecardiología.
+
+\item \textbf{Detección automática de \textit{concept drift}}: Incorporar un módulo de monitorización estadística que detecte automáticamente cuándo el rendimiento del modelo ha degradado por debajo de un umbral, activando el reentrenamiento de forma autónoma.
+\end{enumerate}

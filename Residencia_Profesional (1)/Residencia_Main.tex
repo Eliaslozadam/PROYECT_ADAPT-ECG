@@ -1,0 +1,444 @@
+\documentclass[11pt,spanish]{citedi}
+
+% ── Paquetes ──────────────────────────────────────────────────────────────────
+\usepackage{makeidx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[left=3cm, right=2.5cm, top=3cm, bottom=2.5cm, letterpaper]{geometry}
+\usepackage[square,sort&compress,comma,numbers]{natbib}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[nottoc,notlot,notlof]{tocbibind}
+\usepackage{setspace}
+\usepackage{citedi}
+
+% ── Configuración ─────────────────────────────────────────────────────────────
+\graphicspath{ {./graphics/} }
+\setcounter{MaxMatrixCols}{10}
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue}
+
+\begin{document}
+
+\renewcommand\contentsname{Contenido}
+\renewcommand\bibname{Referencias}
+\renewcommand\tablename{Tabla}
+\renewcommand\figurename{Figura}
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  PORTADA
+% ══════════════════════════════════════════════════════════════════════════════
+\thispagestyle{empty}
+\begin{center}
+
+\textbf{\large SEP \hfill TECNOLÓGICO NACIONAL DE MÉXICO}\\[0.3cm]
+\textbf{\large INSTITUTO TECNOLÓGICO DE TIJUANA}\\[0.2cm]
+DEPARTAMENTO DE INGENIERÍA ELÉCTRICA Y ELECTRÓNICA\\[1.5cm]
+
+\includegraphics[width=5cm]{ITT.png}\\[1.5cm]
+
+{\large RESIDENCIA PROFESIONAL}\\[1cm]
+
+\textbf{\large SISTEMA INTELIGENTE CON REENTRENAMIENTO CONTINUO PARA LA\\
+DETECCIÓN ADAPTATIVA DE PATOLOGÍAS CARDIOVASCULARES\\
+BASADO EN SEÑALES ECG}\\[2cm]
+
+\end{center}
+
+\begin{flushright}
+PRESENTA:\\
+\textbf{\large ELIAS BEJARANO LOZADA}\\
+\textbf{\large 20213057}\\[0.5cm]
+BAJO LA ASESORÍA:\\
+INTERNA: \textbf{M.C. [NOMBRE ASESOR INTERNO]}\\
+EXTERNA: \textbf{M.C. FORTUNATO RAMÍREZ ARZATE}\\[2cm]
+MARZO DEL 2026 \hspace{3cm} TIJUANA, B.C., MÉXICO
+\end{flushright}
+
+\newpage
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  PÁGINAS PRELIMINARES (índice, listas)
+% ══════════════════════════════════════════════════════════════════════════════
+\beforepreface
+\afterpreface
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  RESUMEN
+% ══════════════════════════════════════════════════════════════════════════════
+\nonumchapter{Resumen}
+
+Las enfermedades cardiovasculares constituyen la principal causa de muerte a nivel mundial, con aproximadamente 17.9 millones de fallecimientos anuales. Su detección temprana depende del análisis correcto de las señales electrocardiográficas (ECG). Los modelos de inteligencia artificial aplicados al análisis de ECG han demostrado alta precisión diagnóstica; sin embargo, su rendimiento se degrada con el tiempo debido al \textit{concept drift}, fenómeno por el cual la distribución estadística de los datos cambia gradualmente. El presente trabajo describe el diseño e implementación de un sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares basado en señales ECG. El sistema fue desarrollado en cuatro fases: (1) adquisición y preprocesamiento de 94,627 latidos de la base de datos MIT-BIH Arrhythmia Database, con filtrado pasa-banda, normalización \textit{z-score} y segmentación centrada en el pico R; (2) entrenamiento de un modelo base de red neuronal convolucional (CNN) de 44,229 parámetros, alcanzando una exactitud de validación del 94.00\%; (3) implementación de un módulo de reentrenamiento continuo mediante la técnica de Replay Buffer con aprendizaje incremental sobre cinco lotes secuenciales; y (4) evaluación comparativa formal entre el modelo estático y el modelo adaptativo. Los resultados obtenidos muestran que el modelo adaptativo alcanzó una exactitud del 97.83\% y un F1-Score macro de 0.9071, frente al 93.54\% y 0.7849 del modelo estático, representando una mejora de 4.29 puntos porcentuales en exactitud y 0.1222 en F1 macro. La prueba estadística de McNemar confirmó que esta diferencia es estadísticamente significativa ($\chi^2 = 5342$, $p \approx 0$). Adicionalmente, se desarrolló una interfaz de usuario con Streamlit que permite la inferencia en tiempo real y el reentrenamiento interactivo del modelo.
+
+\bigskip
+\noindent \textbf{Palabras clave:} Aprendizaje incremental; Arritmias cardíacas; \textit{Concept drift}; Redes neuronales convolucionales; Reentrenamiento continuo; Señales ECG.
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  AGRADECIMIENTOS
+% ══════════════════════════════════════════════════════════════════════════════
+\chapter*{Agradecimientos}
+
+\bigskip
+
+[Escribe aquí tus agradecimientos en formato libre.]
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  INTERLINEADO 1.5
+% ══════════════════════════════════════════════════════════════════════════════
+\setstretch{1.5}
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  CAPÍTULO 1 — INTRODUCCIÓN
+% ══════════════════════════════════════════════════════════════════════════════
+\chapter{Introducción}
+
+En México, las enfermedades cardiovasculares representan la principal causa de morbimortalidad, con más de 220,000 fallecimientos reportados en 2023 según el Instituto Nacional de Estadística y Geografía \cite{INEGI2024}. Su diagnóstico oportuno depende en gran medida de la correcta interpretación de las señales electrocardiográficas (ECG); sin embargo, la disponibilidad limitada de especialistas y la variabilidad inherente de las señales biomédicas dificultan la detección temprana de alteraciones cardíacas \cite{WHO2024}. Los modelos de inteligencia artificial (IA) se han consolidado como herramientas valiosas para automatizar el análisis de ECG, aunque presentan una limitación crítica: su rendimiento se degrada con el tiempo ante el fenómeno conocido como \textit{concept drift} \cite{Reshad2025}. El presente trabajo aborda esta problemática mediante el diseño e implementación de un sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares basado en señales ECG.
+
+\section{Descripción de la Institución y proyecto de investigación}
+
+El Tecnológico Nacional de México (TecNM) campus Tijuana, comúnmente denominado como Instituto Tecnológico de Tijuana (ITT), inicia actividades el 17 de septiembre de 1971. El ITT representa la principal oferta de educación tecnológica en el estado de Baja California con la misión de \textit{``Contribuir a la formación integral de profesionistas e investigadores líderes en la innovación y el desarrollo tecnológico de la región, del país y del mundo; con alto sentido de responsabilidad social, a través de un servicio educativo de calidad, con equidad y pertinencia''} \cite{ITT}.
+
+El presente proyecto de Residencia Profesional se realiza en el Departamento de Ingeniería Eléctrica y Electrónica del ITT, en la línea de generación y aplicación del conocimiento (LGAC) ``Análisis, Diseño, Modelado y Simulación de Sistemas'', con clave LGAC-2022-TIJU-IBMC-60, de la licenciatura en Ingeniería Biomédica. El proyecto propone el diseño, implementación y evaluación de un sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares a partir de señales ECG.
+
+\section{Antecedentes}
+
+Las enfermedades cardiovasculares continúan siendo la principal causa de muerte a nivel mundial. De acuerdo con la Organización Mundial de la Salud, cada año provocan alrededor de 17.9 millones de defunciones, lo que representa aproximadamente el 32\% del total de muertes globales \cite{WHO2024}. En México, el INEGI reportó que en 2023 las enfermedades cardiovasculares ocuparon el primer lugar de mortalidad, con más de 220,000 fallecimientos \cite{INEGI2024}.
+
+La detección oportuna de estas patologías depende en gran medida del análisis correcto de las señales electrocardiográficas. En los últimos años, la inteligencia artificial ha demostrado un gran potencial para automatizar el análisis de señales ECG. Una revisión publicada en 2016 concluyó que las redes neuronales superaban significativamente a los métodos tradicionales en precisión y velocidad de diagnóstico \cite{Luz2016}. Un estudio en 2017 propuso una CNN capaz de aprender directamente características del ECG sin intervención manual, alcanzando una precisión del 94.03\% en la detección de arritmias \cite{Acharya2017}. En 2019, Hannun et al.\ demostraron que un modelo de aprendizaje profundo podía alcanzar un rendimiento comparable al de cardiólogos certificados con una exactitud superior al 97\% en la clasificación de 12 tipos de arritmias \cite{Hannun2019}. De igual forma, una arquitectura híbrida CNN--LSTM publicada en 2018 alcanzó una precisión del 99\% en la clasificación de ECG \cite{AlRahhal2018}.
+
+Un estudio publicado en 2022 desarrolló un sistema de telecardiología basado en la actualización periódica del modelo, logrando una reducción del 40\% en los tiempos de diagnóstico \cite{Reddy2022}. Estos trabajos sientan las bases para el desarrollo de modelos adaptativos capaces de actualizar su conocimiento sin reiniciar el entrenamiento completo.
+
+\section{Planteamiento del problema}
+
+Los modelos de inteligencia artificial aplicados a la clasificación de señales ECG presentan una limitación crítica: su rendimiento tiende a degradarse con el tiempo debido a la variabilidad fisiológica entre pacientes y a cambios en las condiciones de adquisición de las señales, fenómeno conocido como \textit{concept drift}. En la mayoría de los sistemas actuales, la actualización del modelo se realiza mediante un reentrenamiento completo desde cero, lo cual resulta computacionalmente ineficiente cuando se incorporan nuevos registros de ECG de manera continua, ya que implica descartar el conocimiento previamente aprendido.
+
+Ante esta situación, surge la necesidad de implementar un sistema reentrenable basado en técnicas de aprendizaje incremental, en el cual el modelo pueda actualizar sus parámetros de forma progresiva, incorporando nuevas muestras de ECG sin reiniciar el entrenamiento completo y preservando el conocimiento previamente adquirido.
+
+\section{Delimitación}
+
+El proyecto tuvo una duración de seis meses, enfocado exclusivamente en un entorno de experimentación controlado. El sistema se delimita al análisis y clasificación de señales electrocardiográficas, excluyendo cualquier otro tipo de señal biomédica. La metodología se limitó al uso de bases de datos públicas validadas (MIT-BIH Arrhythmia Database y PhysioNet), con implementación en Python, PyTorch y scikit-learn. Las pruebas del sistema se delimitaron a la evaluación del desempeño computacional del modelo, sin involucrar estudios clínicos \textit{in vivo}, validaciones hospitalarias ni interacción directa con pacientes.
+
+\section{Hipótesis}
+
+Un sistema de clasificación de señales ECG basado en aprendizaje incremental con Replay Buffer logrará mantener o mejorar la exactitud diagnóstica obtenida por el modelo base, reduciendo la degradación causada por el \textit{concept drift} y preservando el conocimiento previamente adquirido, a través de un entrenamiento continuo sobre lotes secuenciales de datos provenientes de la base de datos MIT-BIH Arrhythmia Database.
+
+\section{Objetivos}
+
+\subsection{Objetivo general}
+
+Implementar un sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares a partir de señales ECG, evaluando su eficacia mediante experimentación controlada y análisis cuantitativo del rendimiento del modelo.
+
+\subsection{Objetivos específicos}
+
+\begin{enumerate}
+\item Analizar la variabilidad fisiológica de las señales ECG y las alteraciones asociadas a patologías cardiovasculares mediante la revisión de literatura y el estudio de bases de datos clínicas, con el fin de fundamentar el problema y preparar los datos necesarios para los experimentos.
+
+\item Aplicar un modelo de aprendizaje supervisado basado en red neuronal convolucional (CNN) para el análisis de señales ECG, estableciendo un entrenamiento base que permita obtener el desempeño inicial en la clasificación de patologías cardiovasculares.
+
+\item Desarrollar un módulo de reentrenamiento continuo que incorpore nuevos registros de ECG de manera incremental, ajustando los parámetros del modelo sin reiniciar el proceso desde cero y evitando efectos como el sobreajuste o la pérdida catastrófica.
+
+\item Evaluar el desempeño del modelo inicial y del modelo reentrenado mediante métricas como precisión, sensibilidad, especificidad y F1-Score, con el fin de determinar si el reentrenamiento continuo mejora la estabilidad y exactitud del sistema.
+\end{enumerate}
+
+\section{Justificación}
+
+El desarrollo de un sistema inteligente con reentrenamiento continuo para la detección de patologías cardiovasculares aporta un valor tecnológico y académico relevante. Diversos estudios han demostrado que los algoritmos de aprendizaje profundo aplicados al análisis de ECG pueden alcanzar niveles de precisión comparables o superiores a los de la interpretación clínica convencional \cite{Chang2019, Reshad2025, ESC2023}. La incorporación del reentrenamiento continuo potencia estos resultados al permitir que el modelo mejore progresivamente su capacidad de generalización, disminuye la necesidad de reentrenamientos completos y favorece la integración en entornos de computación en la nube, contribuyendo al desarrollo de soluciones en salud digital y telemedicina.
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  CAPÍTULO 2 — MARCO TEÓRICO
+% ══════════════════════════════════════════════════════════════════════════════
+\chapter{Marco teórico}
+
+El presente capítulo establece el fundamento conceptual y científico sobre el cual se sustenta el desarrollo del sistema propuesto. Se abordan los principios biofísicos de la señal electrocardiográfica, las principales patologías detectables mediante su análisis, los estándares de clasificación, la base de datos de referencia, el preprocesamiento de señales, el aprendizaje automático supervisado, las redes neuronales convolucionales, el \textit{concept drift}, el aprendizaje incremental, la técnica de Replay Buffer y las métricas de evaluación.
+
+\section{La señal electrocardiográfica}
+
+El electrocardiograma (ECG) es el registro gráfico de la actividad eléctrica generada por el corazón durante su ciclo de contracción y relajación. El miocardio produce corrientes eléctricas que se propagan a través de los tejidos corporales hasta la superficie de la piel, donde pueden ser captadas mediante electrodos de superficie. La señal ECG se caracteriza por la presencia de un patrón repetitivo denominado complejo PQRST: la onda P representa la despolarización auricular, el complejo QRS la despolarización ventricular y la onda T la repolarización ventricular.
+
+El pico R del complejo QRS es el hito morfológico más prominente de la señal ECG. Su elevada amplitud lo hace fácilmente identificable mediante algoritmos computacionales y sirve como punto de referencia para la segmentación de latidos individuales. Conocida la posición temporal del pico R, es posible extraer una ventana fija de muestras centrada en dicho punto, obteniendo una representación compacta y estandarizada de cada latido.
+
+\section{Patologías cardiovasculares y arritmias}
+
+Las enfermedades cardiovasculares constituyen la principal causa de muerte en el mundo, con aproximadamente 17.9 millones de defunciones anuales \cite{WHO2024}. Una arritmia cardíaca se define como cualquier alteración en la frecuencia, regularidad, origen o conducción del impulso eléctrico cardíaco. En el contexto del estándar AAMI EC57, las arritmias de interés clínico se agrupan en cinco clases: N (latidos normales), S (ectópicos supraventriculares), V (ectópicos ventriculares), F (latidos de fusión) y Q (inclasificables). El ECG representa el método de referencia (\textit{gold standard}) para la detección y clasificación de arritmias ya que cada tipo deja una huella morfológica característica en la señal.
+
+\section{Estándar AAMI EC57 para clasificación de arritmias}
+
+La Association for the Advancement of Medical Instrumentation (AAMI) desarrolló el estándar ANSI/AAMI EC57:2012, que define los procedimientos de prueba y las métricas de reporte para evaluar algoritmos de análisis de ECG \cite{AAMI2012}. La adopción de este estándar en el proyecto garantiza la comparabilidad de los resultados con la literatura científica existente, en particular con los trabajos de Acharya et al.\ \cite{Acharya2017} y Hannun et al.\ \cite{Hannun2019}.
+
+\section{Base de datos MIT-BIH Arrhythmia Database}
+
+La MIT-BIH Arrhythmia Database fue desarrollada por el MIT y el Beth Israel Hospital de Boston, publicada en 1980 \cite{Moody2001}. Comprende 48 registros de ECG de dos canales con frecuencia de muestreo de 360 Hz y duración de aproximadamente 30 minutos por registro, disponibles gratuitamente en PhysioNet. Las anotaciones de latidos fueron realizadas por cardiólogos expertos mediante consenso. En este proyecto, los 48 registros produjeron un dataset de 94,627 latidos con la siguiente distribución bajo el estándar AAMI EC57: N 79.3\%, Q 9.0\%, V 7.6\%, S 3.2\%, F 0.8\%.
+
+\section{Preprocesamiento de señales ECG}
+
+El protocolo de preprocesamiento aplicado incluye: (1) filtro pasa-banda Butterworth de orden 4 entre 0.5 y 40 Hz, implementado con filtrado bidireccional para eliminar el desfase de fase; (2) detección de picos R mediante el detector de máximos locales de SciPy con umbral adaptativo; (3) segmentación de ventanas de 71 muestras centradas en cada pico R (35 muestras anteriores y 36 posteriores, equivalentes a ~197 ms a 360 Hz); y (4) normalización \textit{z-score} individualizada de cada latido para eliminar variaciones de amplitud entre registros.
+
+\section{Aprendizaje automático supervisado para clasificación de ECG}
+
+El aprendizaje automático supervisado entrena un modelo a partir de ejemplos etiquetados para aprender una función de mapeo entrada-salida. En la clasificación de latidos ECG, cada ejemplo de entrada es un vector de 71 muestras normalizadas y la etiqueta es una de las cinco clases AAMI. El advenimiento del aprendizaje profundo permitió aprender representaciones directamente desde la señal cruda, eliminando la ingeniería manual de características. Para mitigar el desbalance de clases inherente a MIT-BIH, se emplea una función de pérdida NLLLoss con pesos de clase inversamente proporcionales a su frecuencia.
+
+\section{Redes Neuronales Convolucionales (CNN)}
+
+Las redes neuronales convolucionales (CNN) son redes profundas diseñadas para datos con estructura espacial o temporal. La operación central es la convolución discreta:
+\begin{equation}
+y[i] = \sum_{j=0}^{k-1} x[i+j] \cdot w[j]
+\end{equation}
+donde $x$ es la señal de entrada, $w$ el filtro aprendible de tamaño $k$ e $y$ el mapa de características resultante. La propiedad de invarianza a la traslación hace a las CNN especialmente adecuadas para el análisis de ECG, donde la morfología del complejo QRS puede presentarse en distintas posiciones dentro de la ventana de análisis.
+
+La arquitectura ECG\_CNN implementada en este proyecto está compuesta por tres bloques convolucionales (32, 64 y 128 filtros) seguidos de un clasificador denso con \textit{Dropout}(0.3). El modelo cuenta con 44,229 parámetros entrenables.
+
+\section{Concept drift y degradación de modelos estáticos}
+
+El \textit{concept drift} es el fenómeno por el cual la distribución conjunta $P_t(X, y)$ de los datos cambia a lo largo del tiempo \cite{Reshad2025}. En la clasificación de ECG puede deberse a variabilidad fisiológica interindividual, diferencias entre equipos de adquisición o cambios en el estado clínico del paciente. Los modelos estáticos no pueden actualizar sus parámetros ante nuevos datos sin recurrir a un reentrenamiento completo, lo que resulta costoso en tiempo y recursos computacionales.
+
+\section{Aprendizaje incremental y reentrenamiento continuo}
+
+El aprendizaje incremental actualiza los parámetros del modelo de forma secuencial a partir de flujos de datos que llegan a lo largo del tiempo, sin acceder al conjunto histórico completo en cada actualización. El principal obstáculo es el \textit{Catastrophic Forgetting}, documentado por McCloskey y Cohen en 1989 \cite{McCloskey1989}: cuando una red es entrenada secuencialmente, los pesos aprendidos para tareas anteriores son sobreescritos por los de la nueva tarea. Se han propuesto tres familias de soluciones: métodos de regularización (EWC), arquitecturas progresivas y métodos basados en memoria de repetición (\textit{Replay}), siendo este último el adoptado en el presente proyecto.
+
+\section{Técnica de Replay Buffer}
+
+El Replay Buffer almacena un subconjunto representativo de los ejemplos históricos. Durante el reentrenamiento incremental, el modelo se entrena sobre una mezcla de los nuevos datos y muestras del buffer, obligando al modelo a mantener su rendimiento sobre los datos pasados mientras aprende los nuevos patrones. En este proyecto se emplea un buffer de capacidad máxima de 2,000 latidos con política de reemplazo aleatorio. La tasa de aprendizaje del reentrenamiento se reduce a $10^{-4}$ (diez veces menor que en el entrenamiento base) y se realizan 5 épocas por lote.
+
+\section{Métricas de evaluación de modelos de clasificación}
+
+Las métricas empleadas en la evaluación del sistema son:
+
+\begin{equation}
+\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\end{equation}
+\begin{equation}
+\text{Recall} = \frac{TP}{TP + FN}, \quad
+\text{Precision} = \frac{TP}{TP + FP}, \quad
+F_1 = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}
+\end{equation}
+
+Para la comparación estadística entre clasificadores se emplea la prueba de McNemar:
+\begin{equation}
+\chi^2_{\text{McNemar}} = \frac{(b - c)^2}{b + c}
+\end{equation}
+donde $b$ y $c$ son los conteos de ejemplos clasificados discordantemente entre ambos modelos. Un valor $p < 0.05$ indica diferencia estadísticamente significativa.
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  CAPÍTULO 3 — DESARROLLO Y RESULTADOS
+% ══════════════════════════════════════════════════════════════════════════════
+\chapter{Desarrollo y resultados}
+
+El presente capítulo describe el proceso de desarrollo del sistema, estructurado en cuatro fases secuenciales, y presenta los resultados cuantitativos obtenidos.
+
+\section{Materiales y métodos}
+
+\subsection{Entorno de desarrollo}
+
+El preprocesamiento de datos, el entrenamiento del modelo base y el reentrenamiento continuo se ejecutaron en Google Colaboratory con GPU NVIDIA Tesla T4 (16 GB VRAM). La evaluación comparativa y la interfaz de usuario se ejecutaron localmente en Windows 11 con Python 3.12. Las bibliotecas principales utilizadas fueron PyTorch 2.x, scikit-learn, NumPy, SciPy, Matplotlib y Streamlit.
+
+\subsection{Conjunto de datos}
+
+Se utilizó la MIT-BIH Arrhythmia Database \cite{Moody2001}, descargada mediante la biblioteca \texttt{wfdb} de Python. El dataset resultante tras el preprocesamiento comprende 94,627 latidos agrupados en cinco clases AAMI EC57 \cite{AAMI2012}.
+
+\subsection{Preprocesamiento de señales ECG}
+
+El protocolo de preprocesamiento aplicado a cada registro incluye los siguientes pasos:
+\begin{enumerate}
+\item \textbf{Filtrado pasa-banda}: Filtro Butterworth de orden 4 con cortes a 0.5 Hz y 40 Hz, implementado con \texttt{sosfilt} de SciPy con filtrado bidireccional.
+\item \textbf{Detección de picos R}: Detector de máximos locales \texttt{find\_peaks} de SciPy con umbral adaptativo y distancia mínima equivalente a 300 latidos por minuto.
+\item \textbf{Segmentación}: Ventana de 71 muestras centrada en cada pico R (35 antes, 36 después).
+\item \textbf{Normalización \textit{z-score}}: Media cero y desviación estándar unitaria por latido.
+\item \textbf{Etiquetado}: Mapeo de anotaciones originales MIT-BIH a las cinco clases AAMI EC57.
+\end{enumerate}
+
+\subsection{Arquitectura del modelo CNN}
+
+La red neuronal convolucional ECG\_CNN implementada se describe en la Tabla~\ref{T_arquitectura}.
+
+\begin{table}[h]
+\caption{Arquitectura de la red neuronal convolucional ECG\_CNN.}
+\label{T_arquitectura}
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Bloque} & \textbf{Capa} & \textbf{Configuración} & \textbf{Salida} \\
+\midrule
+Entrada      & ---                              & ---                   & (1, 71)   \\
+Bloque 1     & Conv1d + BN + ReLU + MaxPool     & 32 filtros, kernel=5  & (32, 35)  \\
+Bloque 2     & Conv1d + BN + ReLU + MaxPool     & 64 filtros, kernel=5  & (64, 15)  \\
+Bloque 3     & Conv1d + BN + ReLU + MaxPool     & 128 filtros, kernel=3 & (128, 6)  \\
+Pooling      & AdaptiveAvgPool1d                & salida=1              & (128, 1)  \\
+Clasificador & Linear + ReLU + Dropout + Linear & 128$\to$64$\to$5     & 5         \\
+\midrule
+\multicolumn{3}{l}{\textbf{Total de parámetros entrenables}} & \textbf{44,229} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{Entrenamiento base del modelo}
+
+El modelo fue entrenado sobre el 80\% del dataset (75,702 latidos), con el 20\% restante (18,925 latidos) como conjunto de validación. Hiperparámetros: 30 épocas, \textit{minibatch} de 64, optimizador Adam ($\alpha = 10^{-3}$, $\lambda = 10^{-4}$), función de pérdida NLLLoss con pesos de clase ponderados. El modelo fue guardado en \texttt{models/ecg\_cnn\_base.pth}.
+
+\subsection{Módulo de reentrenamiento continuo}
+
+El dataset fue dividido en 5 lotes secuenciales de aproximadamente 18,925 latidos, simulando la llegada progresiva de datos de nuevos pacientes. El Replay Buffer tiene capacidad máxima de 2,000 latidos con reemplazo aleatorio. En cada lote se mezclan los nuevos datos con el 50\% de muestras del buffer, entrenando durante 5 épocas con $\alpha = 10^{-4}$.
+
+\subsection{Evaluación comparativa}
+
+La evaluación formal se realizó sobre el conjunto de validación completo (75,702 latidos), comparando el modelo estático (sin reentrenamiento) contra el modelo adaptativo (con Replay Buffer) mediante exactitud, F1-Score macro, F1-Score ponderado y prueba de McNemar.
+
+\section{Resultados}
+
+\subsection{Fase 1: Adquisición y preprocesamiento de datos}
+
+Se procesaron exitosamente los 48 registros de la MIT-BIH Arrhythmia Database, obteniendo un dataset de 94,627 latidos. La distribución de clases se presenta en la Tabla~\ref{T_distribucion}.
+
+\begin{table}[h]
+\caption{Distribución de clases en el dataset procesado bajo el estándar AAMI EC57.}
+\label{T_distribucion}
+\begin{center}
+\begin{tabular}{llrr}
+\toprule
+\textbf{Clase} & \textbf{Descripción} & \textbf{Latidos} & \textbf{Porcentaje} \\
+\midrule
+N & Normal                    & 75,052 & 79.3\% \\
+V & Ventricular ectópico      &  7,190 &  7.6\% \\
+Q & No clasificable           &  8,518 &  9.0\% \\
+S & Supraventricular ectópico &  3,028 &  3.2\% \\
+F & Fusión                    &    839 &  0.8\% \\
+\midrule
+\textbf{Total} & & \textbf{94,627} & \textbf{100.0\%} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{Fase 2: Entrenamiento base del modelo CNN}
+
+El modelo ECG\_CNN fue entrenado durante 30 épocas en Google Colaboratory con GPU Tesla T4. La exactitud de validación alcanzó el \textbf{94.00\%} al finalizar el entrenamiento, con convergencia estable y sin señales de sobreajuste.
+
+\subsection{Fase 3: Reentrenamiento continuo}
+
+Los resultados comparativos tras el procesamiento de los 5 lotes secuenciales se presentan en la Tabla~\ref{T_fase3}.
+
+\begin{table}[h]
+\caption{Métricas comparativas entre el modelo estático y el modelo adaptativo (Fase 3).}
+\label{T_fase3}
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Métrica} & \textbf{Modelo estático} & \textbf{Modelo adaptativo} \\
+\midrule
+Exactitud (\textit{Accuracy}) & 93.54\% & \textbf{97.83\%} \\
+F1-Score macro                & 0.7849  & \textbf{0.9071}  \\
+F1-Score ponderado            & 0.9447  & \textbf{0.9773}  \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{Fase 4: Evaluación comparativa formal}
+
+La evaluación formal sobre el conjunto de validación completo (75,702 latidos) se presenta en la Tabla~\ref{T_fase4}.
+
+\begin{table}[h]
+\caption{Resultados de la evaluación comparativa formal (Fase 4).}
+\label{T_fase4}
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Métrica} & \textbf{Modelo estático} & \textbf{Modelo adaptativo} \\
+\midrule
+Exactitud (\textit{Accuracy}) & 88.72\% & \textbf{97.41\%} \\
+F1-Score macro                & 0.7381  & \textbf{0.8954}  \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+La mejora observada es de \textbf{+8.69 puntos porcentuales} en exactitud y \textbf{+0.1573} en F1-Score macro.
+
+\subsection{Análisis estadístico: Prueba de McNemar}
+
+La prueba de McNemar aplicada sobre las predicciones de ambos modelos arrojó:
+\begin{equation}
+\chi^2_{\text{McNemar}} = 5342, \quad p \approx 0
+\end{equation}
+El valor $p \approx 0 \ll 0.05$ confirma que la diferencia en rendimiento entre el modelo adaptativo y el estático es estadísticamente significativa, validando la hipótesis del proyecto.
+
+\subsection{Interfaz de usuario}
+
+Se desarrolló una interfaz de usuario con Streamlit (\texttt{src/ui/app.py}) con tres pestañas: (1) \textbf{Análisis ECG}, que permite seleccionar registros MIT-BIH o cargar un CSV propio y ejecutar la inferencia en tiempo real; (2) \textbf{Reentrenamiento}, que permite iniciar sesiones de reentrenamiento incremental interactivo; y (3) \textbf{Historial}, que muestra la evolución temporal de las métricas de rendimiento. La interfaz se inicia con \texttt{streamlit run src/ui/app.py}.
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  CAPÍTULO 4 — DISCUSIÓN Y CONCLUSIONES
+% ══════════════════════════════════════════════════════════════════════════════
+\chapter{Discusión y conclusiones}
+
+\section{Discusión}
+
+Los resultados obtenidos demuestran que el aprendizaje incremental con Replay Buffer es una estrategia eficaz para mitigar el \textit{concept drift} en modelos de clasificación de señales ECG. La mejora de 8.69 puntos porcentuales en exactitud (de 88.72\% a 97.41\%) y de 0.1573 en F1-Score macro (de 0.7381 a 0.8954) en la evaluación comparativa formal confirma la hipótesis planteada. La prueba de McNemar ($\chi^2 = 5342$, $p \approx 0$) descarta que esta mejora sea atribuible al azar.
+
+La mejora en el F1-Score macro es especialmente relevante desde una perspectiva clínica, ya que pondera por igual a todas las clases incluyendo las minoritarias (F: 0.8\%, S: 3.2\%). Un aumento de 0.1573 indica que el modelo adaptativo mejoró su capacidad de detectar arritmias clínicamente relevantes pero poco frecuentes, que un modelo estático con sesgo hacia la clase mayoritaria tiende a ignorar.
+
+En comparación con la literatura, la exactitud del 97.41\% obtenida por el modelo adaptativo es comparable a los resultados de Hannun et al.\ \cite{Hannun2019} (97\%) y superior a los de Acharya et al.\ \cite{Acharya2017} (94.03\%), con una arquitectura significativamente más ligera (44,229 parámetros). La técnica de Replay Buffer demostró ser de bajo costo computacional y alta efectividad: con un buffer de apenas 2,000 latidos (2.1\% del dataset), el sistema preservó el conocimiento histórico y se adaptó eficientemente a las nuevas distribuciones.
+
+Entre las limitaciones del trabajo se destaca que la validación se realizó en un entorno de experimentación controlado, sin involucrar señales ECG de pacientes reales en condiciones clínicas. La generalización a entornos hospitalarios requeriría estudios adicionales con datos multicéntricos y equipos heterogéneos.
+
+\section{Conclusiones}
+
+\begin{enumerate}
+\item Se implementó exitosamente un sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares a partir de señales ECG, cumpliendo con el objetivo general del proyecto.
+
+\item El preprocesamiento de la MIT-BIH Arrhythmia Database produjo un dataset de 94,627 latidos normalizados con distribución de clases consistente con la literatura de referencia.
+
+\item El modelo CNN base alcanzó una exactitud de validación del 94.00\% tras 30 épocas de entrenamiento, estableciendo una línea base competitiva comparable con el estado del arte.
+
+\item El módulo de reentrenamiento continuo con Replay Buffer logró una mejora estadísticamente significativa de 8.69 puntos porcentuales en exactitud y 0.1573 en F1-Score macro ($\chi^2 = 5342$, $p \approx 0$), validando la hipótesis del proyecto.
+
+\item El sistema demostró que el aprendizaje incremental con Replay Buffer es una estrategia viable y eficiente para mitigar el \textit{concept drift} en clasificación de ECG, con bajo costo computacional y alta efectividad práctica.
+\end{enumerate}
+
+\section{Trabajo futuro}
+
+\begin{enumerate}
+\item \textbf{Validación clínica}: Extender la evaluación a datos de ECG provenientes de entornos hospitalarios reales con poblaciones diversas.
+\item \textbf{Estrategias avanzadas de Replay}: Explorar selección inteligente de muestras basada en incertidumbre o \textit{herding}.
+\item \textbf{Arquitecturas más profundas}: Evaluar arquitecturas CNN-LSTM o \textit{Transformer} en el contexto del aprendizaje incremental.
+\item \textbf{Despliegue en la nube}: Integrar el sistema con plataformas de telemedicina y computación en la nube.
+\item \textbf{Detección automática de \textit{concept drift}}: Incorporar un módulo de monitorización estadística que active el reentrenamiento de forma autónoma.
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  BIBLIOGRAFÍA
+% ══════════════════════════════════════════════════════════════════════════════
+\bibliographystyle{IEEEtran}
+\bibliography{Referencias_RP}
+
+\end{document}
+
+'METAFONT output 202Running miktex-gftopk.exe...
+6.03.23:1312'
+
+55196 bytes packed to 30220 bytes.
+
+Installing C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecxc1095.pk...
+ <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecxc1095.pk> <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2488.pk> <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1095.pk> <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1095.pk> <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1095.pk> <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/symbols/msam10.pfb>
+Output written on Residencia_Main.pdf (29 pages, 522890 bytes).
+SyncTeX written on Residencia_Main.synctex.gz.
+Transcript written on Residencia_Main.log.
+
+'METAFONT output 202Running miktex-gftopk.exe...
+6.03.23:1312'
+
+55196 bytes packed to 30220 bytes.
+
+Installing C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecxc1095.pk...
+ <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecxc1095.pk> <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2488.pk> <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1095.pk> <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1095.pk> <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1095.pk> <C:\Users\Marti\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/symbols/msam10.pfb>
+Output written on Residencia_Main.pdf (29 pages, 522890 bytes).
+SyncTeX written on Residencia_Main.synctex.gz.
+Transcript written on Residencia_Main.log.

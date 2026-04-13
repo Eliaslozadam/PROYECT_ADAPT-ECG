@@ -1,0 +1,344 @@
+% Estilo de Tesis de CITEDI
+
+% Basado en:
+% XThesis.sty
+% Dalhousie University thesis style
+% Dept. of Math. Stats. and Comp. Sci.
+%
+% Modificado por:
+% Juan Tapia
+
+% Tiene tres paquetes en uno:
+%   apalike - Que fue modificado porque esta en ingles, y dice 'bibliography'
+%   Xtocinc - Que es para incluir la tabla de contenido en el contenido
+%   Xthesis - Que es la forma original de Tesis. Originalmente tiene el formato DalHouse
+
+%%Paquete Xtocinc
+
+%Agregar contenido a la tabla de contenido
+% -------------------------------------------------------------------
+% Include Table of Contents in the Table of Contents
+% Change spacing
+% Modified by Alex, October 1994
+% Bug Fix: TOC Page number when TOC spans over one page (November, 1999)
+
+%\newlength{\tclineskip}
+%\setlength{\tclineskip}{\baselineskip}
+%\def\@addcontentsline#1#2#3{\if@filesw \begingroup
+%\let\label\@gobble \let\index\@gobble \let\glossary\@gobble
+%\def\protect##1{\string\string\string##1\string\space
+%   \space}\@temptokena{\thepage}%
+%\edef\@tempa{\immediate\write
+%\@auxout{\string\@writefile{#1}{\protect
+%     \contentsline{#2}{#3}{\the\@temptokena}}}}\@tempa
+%   \if@nobreak \ifvmode\nobreak\fi\fi\endgroup\fi}
+%\def\tableofcontents{\@restonecolfalse\if@twocolumn\@restonecoltrue\onecolumn
+% \fi\chapter*{Tabla de Contenido\@mkboth{CONTENIDO}{CONTENIDO}}
+%   \hbox to \hsize{Secci�n \hfil P�gina}%
+%  \addvspace{.66\baselineskip}
+%  \newlength{\@defbaselineskip}
+%  \setlength{\@defbaselineskip}{\baselineskip}
+%  \setlength{\baselineskip}{\tclineskip}
+%  \addcontentsline{toc}{chapter}{Tabla de Contenidos}
+%  \@starttoc{toc}
+%  \setlength{\baselineskip}{\@defbaselineskip}
+%  \if@restonecol\twocolumn\fi
+%  \relax}
+% -------------------------------------------------------------------
+
+%% Fin de paquete Xtocinc
+
+
+%%% Paquete Tesis
+
+\typeout{Document Style Option `ctesis'.}
+
+\renewcommand*{\today}{\number\day\space de\space
+    \ifcase\month\or
+    enero\or febrero\or marzo\or abril\or mayo\or junio\or
+    julio\or agosto\or septiembre\or octubre\or noviembre\or diciembre\fi
+    \space de\space\number\year}
+
+
+% Define the page heading to be page number only.
+\newcommand{\properpagestyle}{
+       \pagestyle{myheadings}\markboth{}{}\markright{}}
+
+% First thing we do is make sure that report has been loaded.  A
+% common error is to try to use suthesis as a documentstyle.
+\@ifundefined{chapter}{\@latexerr{The `CiceseTesis' option should be used
+with the `report' document style}{You should probably read the
+CiceseTesis documentation.}}{}
+
+
+% Disallow page breaks at hyphens (this will give some underfull vbox's,
+% so an alternative is to use \brokenpenalty=100 and manually search
+% for and fix such page breaks)
+\brokenpenalty=10000
+
+% Use 1.37 times the normal baseline-to-baseline skip
+\renewcommand{\baselinestretch}{1.37}
+
+% Redefine the macro used for floats (including figures and tables)
+% so that single spacing is used.
+% (Note \def\figure{\@float{figure}set single spacing} doesn't work
+%  because figure has an optional argument)
+\def\@xfloat#1[#2]{\ifhmode \@bsphack\@floatpenalty -\@Mii\else
+   \@floatpenalty-\@Miii\fi\def\@captype{#1}\ifinner
+      \@parmoderr\@floatpenalty\z@
+    \else\@next\@currbox\@freelist{\@tempcnta\csname ftype@#1\endcsname
+       \multiply\@tempcnta\@xxxii\advance\@tempcnta\sixt@@n
+       \@tfor \@tempa :=#2\do
+            {\if\@tempa h\advance\@tempcnta \@ne\fi
+             \if\@tempa t\advance\@tempcnta \tw@\fi
+             \if\@tempa b\advance\@tempcnta 4\relax\fi
+             \if\@tempa p\advance\@tempcnta 8\relax\fi
+     }\global\count\@currbox\@tempcnta}\@fltovf\fi
+    \global\setbox\@currbox\vbox\bgroup
+    \def\baselinestretch{1}\@normalsize
+    \boxmaxdepth\z@
+    \hsize\columnwidth \@parboxrestore}
+
+% Redefine the macro used for footnotes to use single spacing
+\long\def\@footnotetext#1{\insert\footins{\def\baselinestretch{1}\footnotesize
+    \interlinepenalty\interfootnotelinepenalty
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox \floatingpenalty \@MM
+    \hsize\columnwidth \@parboxrestore
+   \edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}\@makefntext
+    {\rule{\z@}{\footnotesep}\ignorespaces
+      #1\strut}}}
+
+% \author, \title are defined in report; here are the rest of the
+% front matter defining macros
+\def\titleenglish#1{\gdef\@titleenglish{#1}}
+\def\university#1{\gdef\@university{#1}}
+\def\address#1{\gdef\@address{#1}}
+\def\dept#1{\gdef\@dept{#1}}
+\def\deptenglish#1{\gdef\@deptenglish{#1}}
+\def\division#1{\gdef\@division{#1}}
+\def\supervisor#1{\gdef\@supervisor{#1}}
+\def\superviser#1{\gdef\@supervisor{#1}}
+\def\firstreader#1{\gdef\@firstreader{#1}}
+\def\secondreader#1{\gdef\@secondreader{#1}}
+\def\thirdreader#1{\gdef\@thirdreader{#1}\third@readertrue}
+\def\fourthreader#1{\gdef\@fourthreader{#1}\fourth@readertrue}
+\def\fifthreader#1{\gdef\@fifthreader{#1}\fifth@readertrue}
+\def\supervisordos#1{\gdef\@supervisordos{#1}}
+\def\twosupervisors{\two@supervisorstrue}
+\def\jefedept#1{\gdef\@jefedept{#1}}
+\def\dirposgrado#1{\gdef\@dirposgrado{#1}}
+\def\keywords#1{\gdef\@keywords{#1}}
+\def\palabrasclave#1{\gdef\@palabrasclave{#1}}
+
+\def\submitdate#1#2#3{\gdef\@submitdateday{#1}\gdef\@submitdatemonth{#2}\gdef\@submitdateyear{#3}}
+\def\monthenglish#1{\gdef\@monthenglish{#1}}
+\def\copyrightyear#1{\gdef\@copyrightyear{#1}} % \author, \title in report
+\def\degree#1{\gdef\@degree{#1}}
+\def\degreeenglish#1{\gdef\@degreeenglish{#1}}
+
+\def\degreeinitial#1{\gdef\@degreeinitial{#1}}
+\def\msc{\degree{Maestro en Ciencias}\degreeinitial{M.C.} \degreeenglish{Science Master}}
+\msc % default degree
+\def\phd{\degree{Doctor en Ciencias}\degreeinitial{Dr.}\ph@dtrue \degreeenglish{Doctor}}
+\def\@title{}
+\def\@titleenglish{}
+\def\@author{}
+\def\@university{CITEDI}
+\def\@address{Tijuana, Baja California, M\'{e}xico,}
+\def\@dept{Posgrado}
+
+\def\@deptenglish{Computer Sciences}
+\def\@division{PROGRAMA DE POSGRADO EN CIENCIAS}
+
+\def\@supervisor{}\def\@firstreader{}\def\@secondreader{}
+\def\@thirdreader{}\def\@fourthreader{}\def\@fifthreader{}
+\def\@supervisordos{}
+
+\def\@copyrightyear{\number\the\year}
+
+\def\dedicate#1{\dedic@tiontrue\gdef\dedication@text{#1}}
+
+\def\draft{\renewcommand{\properpagestyle}{\pagestyle{myheadings}
+\markright{{\rm Draft Version -- \today}}}\draft@modetrue\properpagestyle}
+\def\nobib{\print@bibfalse}
+\def\nolistoffigures{\figurespagefalse}
+\def\nolistoftables{\tablespagefalse}
+\def\nosimbolos{\simbolospagefalse}
+\def\nofront{\front@pagesfalse\permissionfalse\figurespagefalse\tablespagefalse\simbolospagefalse}
+
+% New if constructs:    Default conditions:
+\newif\ifpermission     \permissiontrue
+\newif\iffigurespage    \figurespagetrue
+\newif\iftablespage     \tablespagetrue
+\newif\ifportadapage    \portadapagetrue
+\newif\ifsimbolospage   \simbolospagetrue
+\newif\ifresumenpage    \resumenpagetrue
+\newif\ifabstractpage   \abstractpagetrue
+\newif\ifagradecimientospage \agradecimientospagetrue
+\newif\iffront@pages    \front@pagestrue
+\newif\ifthird@reader   \third@readerfalse
+\newif\iffourth@reader  \fourth@readerfalse
+\newif\iffifth@reader   \fifth@readerfalse
+\newif\ifph@d           \ph@dfalse
+\newif\iftwo@supervisors \two@supervisorsfalse
+\newif\ifdraft@mode     \draft@modefalse
+\newif\ifprint@bib      \print@bibtrue
+\newif\ifdedic@tion     \dedic@tionfalse
+
+
+\def\no@breaks#1{{\def\\{ \ignorespaces}#1}}    % disallow explicit line breaks
+
+
+%\def\signature#1#2{\parbox[b]{1in}{\smash{#1}\vskip12pt}
+%\hfill \parbox[t]{3in}{\shortstack{\vrule width 3in height 0.4pt\\\small#2}}}
+\def\signature#1#2{\parbox[b]{1in}{} %\parbox[b]{1in}{\vskip12pt}
+\parbox[bt]{2.5in}{\shortstack{\vrule width 2.6in height 0.4pt\\
+                \\ #1 \\ \\ \\ \\ {\it \small#2}}}}
+
+\def\signatureRes#1#2{\parbox[b]{1in}{} %\parbox[b]{1in}{\vskip12pt}
+\parbox[bt]{3in}{\shortstack{\vrule width 2.8in height 0.4pt\\
+                \\ #1 \\ \\ \\ \\ {\it \small#2}}}}
+
+
+\def\signatureDept#1#2#3{\parbox[b]{1in}{}
+    \parbox[bt]{2.5in}{\shortstack{\vrule width 2.6in height 0.4pt\\
+                \\ #1 \\ \\ \\ \\ {\it \small#2}\\ \\ {\it \small #3}}}}
+
+\def\portada{
+    \include{Portada}
+}
+
+\def\agradecimientos{
+    \include{agradecimientos}
+}
+
+\def\simbolos{
+    \include{simbolos}
+}
+
+\def\resumen{
+    \include{resumen}
+}
+
+\def\abstract{
+    \include{abstract}
+}
+
+\def\beforepreface{
+    \pagenumbering{roman}
+
+    \iffront@pages
+
+    \fi
+    \ifportadapage
+        \portada
+        \addtocounter{page}{-1}
+        \newpage
+
+    \fi
+    \ifagradecimientospage
+        \agradecimientos
+        \newpage
+
+        \tableofcontents
+
+    \fi
+    \iffigurespage
+    \listoffigures
+        \addcontentsline{toc}{chapter}{Lista de figuras}
+        \newpage
+
+    \fi
+    \iftablespage
+    \listoftables
+        \addcontentsline{toc}{chapter}{Lista de tablas}
+        \newpage
+
+    \fi
+    \ifresumenpage
+        \resumen
+        \newpage
+
+    \fi
+    \ifabstractpage
+        \abstract
+        \newpage
+
+    \fi
+    \ifsimbolospage
+       \simbolos
+       \newpage
+ }
+
+\def\nonumchapter#1{%
+    \chapter*{#1}
+    \addcontentsline{toc}{chapter}{#1}
+}
+
+\def\prefacesection#1{%
+    \chapter*{#1}
+    \addcontentsline{toc}{chapter}{#1}
+}
+
+\newenvironment{dedication}{
+\newpage
+\begin{center}\Large\em\null\vskip1in}%
+{\vfill\end{center}}
+
+\def\afterpreface{\newpage
+    \pagenumbering{arabic}
+    \properpagestyle
+    }
+
+% Redefine \thebibliography to go to a new page and put an entry in the
+% table of contents
+%\let\@ldthebibliography\thebibliography
+%\renewcommand{\thebibliography}[1]{%
+%    \newpage
+%    \addcontentsline{toc}{chapter}{Bibliograf\'{\i}a}
+%5    \@ldthebibliography{#1} }%
+
+
+% Agregar indice a la tabla de contenido
+\let\@ldtheindex\theindex
+\renewcommand{\theindex}{
+    \newpage
+    \addcontentsline{toc}{chapter}{\'{I}ndice}
+    \@ldtheindex
+}
+
+%\@addtoreset{footnote}{page}
+
+\renewcommand\thechapter {\@arabic \c@chapter}
+
+% Start out normal
+\properpagestyle
+
+%Modificar el ultimo numero si se traslapan los numeros romanos en la Lista de Tablas
+%2.3em es el original
+%3.4em Si se llega al 18 (XVIII)
+%4.0em Si se llega al 28 (XXVIII)
+%4.6em Si se llega al 38 (XXXVIII)
+%5.4em Si se llega al 88 (LXXXVIII)
+\renewcommand*\l@table{\@dottedtocline{1}{1.5em}{2.3em}}
+
+%%Por si se traslapan los n�meros en la tabla de contenido incrementar el n�mero:
+\renewcommand\@ptocnumwidth{1.5em}  %%1.5 es el valor original, 2.5 es para VIII capitulos
+
+%%tambien se tienen que modificar los �ltimos n�meros de estos comandos,
+%%hay que sumarle lo mismo que al anterior (a partir de 1.5):
+\renewcommand*\l@section{\@dottedtocline{1}{1.5em}{2.3em}}
+\renewcommand*\l@subsection{\@dottedtocline{2}{3.8em}{3.2em}}
+\renewcommand*\l@subsubsection{\@dottedtocline{3}{7.0em}{4.1em}}
+\renewcommand*\l@paragraph{\@dottedtocline{4}{10em}{5em}}
+\renewcommand*\l@subparagraph{\@dottedtocline{5}{12em}{6em}}
+
+% Line spacing -----------------------------------------------------------
+\newlength{\defbaselineskip}
+\setlength{\defbaselineskip}{\baselineskip}
+\newcommand{\setlinespacing}[1]%
+           {\setlength{\baselineskip}{#1 \defbaselineskip}}
+\newcommand{\doublespacing}{\setlength{\baselineskip}%
+                           {1.4 \defbaselineskip}}
+\newcommand{\singlespacing}{\setlength{\baselineskip}{\defbaselineskip}}

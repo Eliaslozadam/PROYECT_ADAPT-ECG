@@ -1,0 +1,82 @@
+%TCIDATA{Version=5.50.0.2953}
+%TCIDATA{LaTeXparent=0,0,main.tex}
+
+\pretolerance=2000 \tolerance=3000
+
+\chapter{Introducción}
+
+En México, las enfermedades cardiovasculares representan la principal causa de morbimortalidad, con más de 220,000 fallecimientos reportados en 2023 según el Instituto Nacional de Estadística y Geografía \cite{INEGI2024}. Su diagnóstico oportuno depende en gran medida de la correcta interpretación de las señales electrocardiográficas (ECG); sin embargo, la disponibilidad limitada de especialistas y la variabilidad inherente de las señales biomédicas dificultan la detección temprana de alteraciones cardíacas \cite{WHO2024}. Los modelos de inteligencia artificial (IA) se han consolidado como herramientas valiosas para automatizar el análisis de ECG, aunque presentan una limitación crítica: su rendimiento se degrada con el tiempo ante el fenómeno conocido como \textit{concept drift} \cite{Reshad2025}. El presente trabajo aborda esta problemática mediante el diseño e implementación de un sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares basado en señales ECG.
+
+\section{Descripción de la Institución y proyecto de investigación}
+
+El Tecnológico Nacional de México (TecNM) campus Tijuana, comúnmente denominado como Instituto Tecnológico de Tijuana (ITT), inicia actividades el 17 de septiembre de 1971. El ITT representa la principal oferta de educación tecnológica en el estado de Baja California con la misión de \textit{``Contribuir a la formación integral de profesionistas e investigadores líderes en la innovación y el desarrollo tecnológico de la región, del país y del mundo; con alto sentido de responsabilidad social, a través de un servicio educativo de calidad, con equidad y pertinencia''}; y la visión de \textit{``Ser una institución rectora de la educación superior tecnológica, la investigación científica y el desarrollo tecnológico en la Región Noroeste del País, con proyección a nivel nacional e internacional''}. El ITT establece el compromiso de implementar todos sus procesos, orientándolos hacia la satisfacción de sus clientes sustentada en la calidad del proceso educativo, para cumplir con sus requerimientos, mediante la eficacia de un Sistema de Gestión de la Calidad y de mejora continua, conforme a la norma ISO 9001:2008. Actualmente, la Institución cuenta con una oferta educativa de 20 licenciaturas, 6 maestrías y 3 doctorados en dos planteles, Tomás Aquino y Otay \cite{ITT}.
+
+El presente proyecto de Residencia Profesional se realiza en el Departamento de Ingeniería Eléctrica y Electrónica del ITT, en la línea de generación y aplicación del conocimiento (LGAC) ``Análisis, Diseño, Modelado y Simulación de Sistemas'', con clave LGAC-2022-TIJU-IBMC-60, de la licenciatura en Ingeniería Biomédica. El proyecto propone el diseño, implementación y evaluación de un sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares a partir de señales ECG, con el objetivo de mitigar el impacto del \textit{concept drift} mediante técnicas de aprendizaje incremental.
+
+\section{Antecedentes}
+
+Las enfermedades cardiovasculares continúan siendo la principal causa de muerte a nivel mundial. De acuerdo con la Organización Mundial de la Salud, cada año provocan alrededor de 17.9 millones de defunciones, lo que representa aproximadamente el 32\% del total de muertes globales \cite{WHO2024}. En México, el Instituto Nacional de Estadística y Geografía reportó que en 2023 las enfermedades cardiovasculares ocuparon el primer lugar de mortalidad, con más de 220,000 fallecimientos, superando incluso a la diabetes mellitus y a las enfermedades respiratorias crónicas \cite{INEGI2024}.
+
+La detección oportuna de estas patologías depende en gran medida del análisis correcto de las señales electrocardiográficas, las cuales reflejan la actividad eléctrica del corazón y permiten identificar alteraciones como arritmias, fibrilación auricular o bloqueos cardíacos. Sin embargo, la interpretación manual de dichas señales requiere personal especializado y equipamiento adecuado, lo que representa una limitación significativa en regiones con escasa disponibilidad de cardiólogos o recursos tecnológicos.
+
+En los últimos años, la inteligencia artificial y el aprendizaje automático han demostrado un gran potencial para automatizar el análisis de señales ECG, reduciendo errores humanos y acelerando el diagnóstico. Una revisión publicada en 2016 analizó los principales algoritmos empleados en la clasificación de latidos cardíacos, concluyendo que las redes neuronales y las máquinas de soporte vectorial superaban significativamente a los métodos tradicionales tanto en precisión como en velocidad de diagnóstico \cite{Luz2016}. Este trabajo marcó un punto de referencia para la aplicación de inteligencia artificial al procesamiento de señales fisiológicas.
+
+Posteriormente, un estudio realizado en 2017 propuso una red neuronal convolucional (CNN) capaz de aprender directamente características del ECG sin intervención manual, alcanzando una precisión del 94.03\% en la detección de arritmias \cite{Acharya2017}. Este avance eliminó por completo la necesidad de extracción manual de características. En 2019, una investigación con más de 90,000 registros de ECG demostró que un modelo de aprendizaje profundo podía alcanzar un rendimiento clínico comparable al de cardiólogos certificados, logrando una exactitud superior al 97\% en la clasificación de 12 tipos de arritmias \cite{Hannun2019}. De igual forma, un trabajo publicado en 2018 introdujo una arquitectura híbrida CNN--LSTM que combinó el análisis espacial y temporal de las señales, alcanzando una precisión del 99\% en la clasificación de ECG \cite{AlRahhal2018}.
+
+La evolución reciente de la IA ha impulsado el desarrollo de modelos adaptativos, capaces de actualizar su conocimiento a partir de nuevos datos sin necesidad de reiniciar el entrenamiento completo. Un estudio publicado en 2022 desarrolló un sistema de telecardiología basado en la actualización periódica del modelo mediante la incorporación de nuevas muestras, logrando una reducción del 40\% en los tiempos de diagnóstico y una mejora significativa en la disponibilidad del servicio médico \cite{Reddy2022}. Este tipo de implementación demostró la relevancia de los modelos adaptativos para mantener la eficacia de los sistemas de diagnóstico asistido por computadora.
+
+En este contexto, los modelos con reentrenamiento continuo representan la siguiente etapa en la evolución de la interpretación automática de señales ECG, capaces de detectar degradaciones en el rendimiento, incorporar nuevas variaciones fisiológicas y mantener un desempeño estable sin necesidad de realizar reentrenamientos manuales completos.
+
+\section{Planteamiento del problema}
+
+Las enfermedades cardiovasculares representan la principal causa de muerte a nivel mundial, con aproximadamente 17.9 millones de fallecimientos anuales según la Organización Mundial de la Salud. Su detección temprana depende del análisis preciso de las señales electrocardiográficas, las cuales permiten identificar alteraciones en la actividad eléctrica del corazón como arritmias, bloqueos o fibrilaciones. Sin embargo, el análisis manual de estas señales requiere la participación de especialistas y equipos de diagnóstico avanzados, lo que limita su alcance en entornos con escasa disponibilidad médica y tecnológica.
+
+El uso de modelos de inteligencia artificial, particularmente modelos de clasificación supervisada basados en aprendizaje profundo, ha permitido automatizar la interpretación de señales ECG con niveles de precisión comparables a los de especialistas. No obstante, estos modelos presentan una limitación crítica: su rendimiento tiende a degradarse con el tiempo debido a la variabilidad fisiológica entre pacientes y a cambios en las condiciones de adquisición de las señales, fenómeno conocido como \textit{concept drift}.
+
+En la mayoría de los sistemas actuales, la actualización del modelo se realiza mediante un reentrenamiento completo desde cero, lo cual resulta computacionalmente ineficiente y poco viable cuando se incorporan nuevos registros de ECG de manera continua, ya que implica descartar el conocimiento previamente aprendido.
+
+Ante esta situación, surge la necesidad de implementar un sistema reentrenable basado en técnicas de aprendizaje incremental, en el cual el modelo pueda actualizar sus parámetros de forma progresiva, incorporando nuevas muestras de ECG sin reiniciar el entrenamiento completo y preservando el conocimiento previamente adquirido. Este enfoque permite reducir el impacto del \textit{concept drift} y mantener un desempeño diagnóstico estable a lo largo del tiempo.
+
+\section{Delimitación}
+
+El proyecto tuvo una duración de seis meses, durante los cuales se llevó a cabo el diseño, desarrollo, implementación y validación de un sistema inteligente con reentrenamiento continuo, enfocado exclusivamente en un entorno de experimentación controlado.
+
+El sistema se delimita al análisis y clasificación de señales electrocardiográficas, excluyendo deliberadamente cualquier otro tipo de señal biomédica (como EEG, EMG o señales hemodinámicas), con el fin de mantener un enfoque específico en la detección de patologías cardiovasculares.
+
+Desde el punto de vista técnico, el proyecto se restringe al uso de técnicas de aprendizaje automático y aprendizaje profundo, particularmente modelos de clasificación supervisada aplicados a señales ECG, así como a métodos de reentrenamiento continuo que permitan la actualización del modelo sin reiniciar el proceso de entrenamiento desde cero.
+
+La metodología de trabajo se limitó al uso de bases de datos públicas y validadas, como MIT-BIH Arrhythmia Database y PhysioNet, empleando procesos de preprocesamiento de señales que incluyen filtrado, normalización y segmentación de registros ECG. La implementación del modelo y del módulo de reentrenamiento continuo se realizó mediante lenguajes y librerías de uso académico ampliamente aceptadas: Python, PyTorch y scikit-learn.
+
+Las pruebas del sistema se delimitaron a la evaluación del desempeño computacional del modelo, sin involucrar estudios clínicos \textit{in vivo}, validaciones hospitalarias ni interacción directa con pacientes. La validación se centró exclusivamente en la comparación cuantitativa entre un modelo estático y un modelo con reentrenamiento continuo, utilizando métricas como precisión, sensibilidad, especificidad y F1-Score.
+
+\section{Hipótesis}
+
+Un sistema de clasificación de señales ECG basado en aprendizaje incremental con Replay Buffer logrará mantener o mejorar la exactitud diagnóstica obtenida por el modelo base, reduciendo la degradación causada por el \textit{concept drift} y preservando el conocimiento previamente adquirido, a través de un entrenamiento continuo sobre lotes secuenciales de datos provenientes de la base de datos MIT-BIH Arrhythmia Database.
+
+\section{Objetivos}
+
+\subsection{Objetivo general}
+
+Implementar un sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares a partir de señales ECG, evaluando su eficacia mediante experimentación controlada y análisis cuantitativo del rendimiento del modelo.
+
+\subsection{Objetivos específicos}
+
+\begin{enumerate}
+\item Analizar la variabilidad fisiológica de las señales electrocardiográficas (ECG) y las alteraciones asociadas a patologías cardiovasculares mediante la revisión de literatura y el estudio de bases de datos clínicas, con el fin de fundamentar el problema y preparar los datos necesarios para los experimentos.
+
+\item Aplicar un modelo de aprendizaje supervisado de clasificación basado en aprendizaje profundo, utilizando arquitecturas neuronales tipo red neuronal convolucional (CNN) para el análisis de señales ECG, estableciendo un entrenamiento base que permita obtener el desempeño inicial en la clasificación de patologías cardiovasculares.
+
+\item Desarrollar un módulo de reentrenamiento continuo que incorpore nuevos registros de ECG de manera incremental, ajustando los parámetros del modelo sin reiniciar el proceso desde cero y evitando efectos como el sobreajuste o pérdida catastrófica.
+
+\item Evaluar el desempeño del modelo inicial y del modelo reentrenado mediante métricas como precisión, sensibilidad, especificidad y F1-Score, con el fin de determinar si el reentrenamiento continuo mejora la estabilidad y exactitud del sistema.
+\end{enumerate}
+
+\section{Justificación}
+
+El desarrollo de un sistema inteligente con reentrenamiento continuo para la detección de patologías cardiovasculares aporta un valor tecnológico y académico relevante, al permitir que los modelos de inteligencia artificial aplicados a señales electrocardiográficas mantengan un desempeño estable y confiable a lo largo del tiempo. Este enfoque favorece la actualización progresiva del modelo ante la incorporación de nuevos datos, contribuyendo a diagnósticos asistidos por computadora más consistentes y sostenibles.
+
+Diversos estudios han demostrado que los algoritmos de aprendizaje automático y profundo aplicados al análisis de ECG pueden alcanzar niveles de precisión comparables o superiores a los de la interpretación clínica convencional. Por ejemplo, un modelo de aprendizaje profundo entrenado con más de 65,000 registros ECG obtuvo una puntuación F1 superior a 0.90, frente a 0.83 reportado por cardiólogos en la misma tarea \cite{Chang2019}. Análisis sistemáticos reportan exactitudes de hasta 99.93\% y valores F1 de 99.57\% en la detección automática de arritmias bajo condiciones controladas \cite{Reshad2025}. De igual forma, estudios clínicos sobre algoritmos de clasificación señalan sensibilidades y especificidades entre 98.8\% y 99.2\% para arritmias ventriculares críticas, superando el desempeño habitual de la interpretación humana en dichos contextos \cite{ESC2023}.
+
+La incorporación del reentrenamiento continuo potencia estos resultados, al permitir que el modelo reduzca el sesgo del entrenamiento inicial y mejore progresivamente su capacidad de generalización, atendiendo variaciones entre pacientes y cambios en los perfiles poblacionales. Desde una perspectiva tecnológica, este enfoque disminuye la necesidad de reentrenamientos completos, optimiza el uso de recursos computacionales y favorece la integración del sistema en entornos de computación en la nube.
+
+Finalmente, desde una perspectiva social y aplicada, el proyecto contribuye al desarrollo de soluciones en salud digital, telemedicina e informática en salud, al proponer un sistema adaptable que puede ser utilizado como herramienta de apoyo al diagnóstico cardiovascular asistido por computadora, especialmente en contextos institucionales con recursos limitados, fortaleciendo la investigación y aplicación de la inteligencia artificial en la Ingeniería Biomédica.
