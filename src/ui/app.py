@@ -487,7 +487,7 @@ if not MODEL_ADAPTIVE.exists() or not MODEL_STATIC.exists():
 model_path = MODEL_ADAPTIVE if "Adaptativo" in model_choice else MODEL_STATIC
 
 # ─── Pestañas principales ─────────────────────────────────────────────────────
-tab_analysis, tab_history = st.tabs(["🔬 Análisis e Inferencia", "📈 Historial de Reentrenamiento"])
+tab_analysis, tab_history, tab_compare = st.tabs(["🔬 Análisis e Inferencia", "📈 Historial de Reentrenamiento", "📊 Análisis Comparativo"])
 
 with tab_history:
     history = load_history()
@@ -527,6 +527,171 @@ with tab_history:
             if st.button("🗑️ Borrar historial", type="secondary"):
                 HISTORY_PATH.unlink(missing_ok=True)
                 st.rerun()
+
+with tab_compare:
+    history_c = load_history()
+
+    # Resultados Fase 4 (referencia formal del informe)
+    STATIC_ACC   = 0.8872
+    STATIC_F1    = 0.7381
+    RETRAIN_ACC  = 0.9741
+    RETRAIN_F1   = 0.8954
+
+    st.subheader("Modelo Base vs Modelo Reentrenado")
+    st.caption("Comparacion formal entre el modelo CNN estatico y el modelo con reentrenamiento continuo (Replay Buffer)")
+
+    # ── KPIs ──────────────────────────────────────────────────────────────
+    st.markdown("#### Resultados Formales (Fase 4 — 75,702 latidos)")
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("Accuracy Estatico",   f"{STATIC_ACC*100:.2f}%")
+    k2.metric("Accuracy Adaptativo", f"{RETRAIN_ACC*100:.2f}%",
+              delta=f"+{(RETRAIN_ACC-STATIC_ACC)*100:.2f}%")
+    k3.metric("F1 Macro Estatico",   f"{STATIC_F1:.4f}")
+    k4.metric("F1 Macro Adaptativo", f"{RETRAIN_F1:.4f}",
+              delta=f"+{RETRAIN_F1-STATIC_F1:.4f}")
+
+    st.divider()
+
+    # ── Grafica 1: Barras comparativas Acc y F1 ───────────────────────────
+    st.markdown("#### Comparacion de metricas globales")
+    col_g1, col_g2 = st.columns(2)
+
+    with col_g1:
+        fig_bar_acc = go.Figure(data=[
+            go.Bar(name="Modelo Estatico",    x=["Accuracy"], y=[STATIC_ACC*100],
+                   marker_color="#EF5350", text=[f"{STATIC_ACC*100:.2f}%"], textposition="outside"),
+            go.Bar(name="Modelo Adaptativo",  x=["Accuracy"], y=[RETRAIN_ACC*100],
+                   marker_color="#1976D2", text=[f"{RETRAIN_ACC*100:.2f}%"], textposition="outside"),
+        ])
+        fig_bar_acc.update_layout(
+            title="Accuracy (%)", barmode="group",
+            yaxis=dict(range=[80, 102]), height=350,
+            margin=dict(l=10, r=10, t=45, b=10),
+            legend=dict(orientation="h", y=-0.2)
+        )
+        st.plotly_chart(fig_bar_acc, use_container_width=True, key="cmp_acc")
+
+    with col_g2:
+        fig_bar_f1 = go.Figure(data=[
+            go.Bar(name="Modelo Estatico",   x=["F1 Macro"], y=[STATIC_F1],
+                   marker_color="#EF5350", text=[f"{STATIC_F1:.4f}"], textposition="outside"),
+            go.Bar(name="Modelo Adaptativo", x=["F1 Macro"], y=[RETRAIN_F1],
+                   marker_color="#388E3C", text=[f"{RETRAIN_F1:.4f}"], textposition="outside"),
+        ])
+        fig_bar_f1.update_layout(
+            title="F1 Macro", barmode="group",
+            yaxis=dict(range=[0.6, 1.0]), height=350,
+            margin=dict(l=10, r=10, t=45, b=10),
+            legend=dict(orientation="h", y=-0.2)
+        )
+        st.plotly_chart(fig_bar_f1, use_container_width=True, key="cmp_f1")
+
+    st.divider()
+
+    # ── Grafica 2: F1 final por registro (ultimo run) ─────────────────────
+    if history_c:
+        from collections import defaultdict
+        por_reg = defaultdict(list)
+        for h in history_c:
+            por_reg[h["registro"]].append(h)
+
+        regs   = sorted(por_reg.keys())
+        f1_fin = [por_reg[r][-1]["f1_despues"] for r in regs]
+        acc_fin= [por_reg[r][-1]["acc_despues"] for r in regs]
+        colores = ["#388E3C" if v >= 0.70 else "#EF5350" for v in f1_fin]
+
+        st.markdown("#### F1 Macro final por registro MIT-BIH")
+        fig_reg = go.Figure()
+        fig_reg.add_trace(go.Bar(
+            x=regs, y=f1_fin,
+            marker_color=colores,
+            text=[f"{v:.2f}" for v in f1_fin],
+            textposition="outside",
+            name="F1 Macro"
+        ))
+        fig_reg.add_hline(y=0.70, line_dash="dash", line_color="#FF9800",
+                          annotation_text="Umbral 0.70", annotation_position="top right")
+        fig_reg.add_hline(y=STATIC_F1, line_dash="dot", line_color="#EF5350",
+                          annotation_text=f"F1 Estatico ({STATIC_F1:.4f})", annotation_position="bottom right")
+        fig_reg.update_layout(
+            title="F1 Macro por registro — verde >= 0.70, rojo < 0.70",
+            xaxis_title="Registro MIT-BIH", yaxis_title="F1 Macro",
+            xaxis=dict(type="category", tickangle=-45),
+            yaxis=dict(range=[0, 1.12]), height=420,
+            margin=dict(l=10, r=10, t=45, b=60),
+        )
+        st.plotly_chart(fig_reg, use_container_width=True, key="cmp_reg_f1")
+
+        # ── Grafica 3: Accuracy final por registro ────────────────────────
+        st.markdown("#### Accuracy final por registro MIT-BIH")
+        col_acc = ["#1976D2" if v >= 0.90 else "#FF9800" for v in acc_fin]
+        fig_acc_reg = go.Figure(go.Bar(
+            x=regs, y=[v*100 for v in acc_fin],
+            marker_color=col_acc,
+            text=[f"{v*100:.1f}" for v in acc_fin],
+            textposition="outside",
+        ))
+        fig_acc_reg.add_hline(y=STATIC_ACC*100, line_dash="dot", line_color="#EF5350",
+                              annotation_text=f"Acc Estatico ({STATIC_ACC*100:.2f}%)",
+                              annotation_position="bottom right")
+        fig_acc_reg.update_layout(
+            title="Accuracy (%) por registro — azul >= 90%, naranja < 90%",
+            xaxis_title="Registro MIT-BIH", yaxis_title="Accuracy (%)",
+            xaxis=dict(type="category", tickangle=-45),
+            yaxis=dict(range=[0, 115]), height=420,
+            margin=dict(l=10, r=10, t=45, b=60),
+        )
+        st.plotly_chart(fig_acc_reg, use_container_width=True, key="cmp_reg_acc")
+
+        st.divider()
+
+        # ── Grafica 4: Mejora acumulada de F1 a lo largo de sesiones ──────
+        st.markdown("#### Evolucion del F1 Macro promedio por sesion")
+        import numpy as np
+        sesiones_unicas = sorted(set(h["fecha"] for h in history_c))
+        f1_prom_por_sesion = []
+        fechas_label = []
+        acumulado = {}
+        for h in history_c:
+            acumulado[h["registro"]] = h["f1_despues"]
+            f1_prom_por_sesion.append(np.mean(list(acumulado.values())))
+            fechas_label.append(f'{h["registro"]}')
+
+        fig_evo = go.Figure()
+        fig_evo.add_hline(y=STATIC_F1, line_dash="dot", line_color="#EF5350",
+                          annotation_text=f"Modelo estatico ({STATIC_F1:.4f})",
+                          annotation_position="top left")
+        fig_evo.add_trace(go.Scatter(
+            x=list(range(1, len(f1_prom_por_sesion)+1)),
+            y=f1_prom_por_sesion,
+            mode="lines", name="F1 promedio acumulado",
+            line=dict(color="#1976D2", width=2),
+            fill="tozeroy", fillcolor="rgba(25,118,210,0.08)"
+        ))
+        fig_evo.update_layout(
+            title="F1 Macro promedio acumulado durante el reentrenamiento",
+            xaxis_title="Sesion de reentrenamiento (#)",
+            yaxis_title="F1 Macro promedio",
+            yaxis=dict(range=[0, 1.05]), height=380,
+            margin=dict(l=10, r=10, t=45, b=10),
+        )
+        st.plotly_chart(fig_evo, use_container_width=True, key="cmp_evo")
+
+        # ── Resumen estadistico ───────────────────────────────────────────
+        st.divider()
+        st.markdown("#### Resumen estadistico del modelo adaptativo")
+        n_perfectos = sum(1 for v in f1_fin if v == 1.0)
+        n_buenos    = sum(1 for v in f1_fin if v >= 0.70)
+        n_total     = len(f1_fin)
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Registros evaluados", n_total)
+        c2.metric("F1 = 1.00 (perfectos)", n_perfectos)
+        c3.metric("F1 >= 0.70", f"{n_buenos} ({n_buenos/n_total*100:.0f}%)")
+        c4.metric("F1 promedio final", f"{np.mean(f1_fin):.4f}",
+                  delta=f"+{np.mean(f1_fin)-STATIC_F1:.4f} vs estatico")
+
+    else:
+        st.info("Aun no hay sesiones de reentrenamiento. Ejecuta el reentrenamiento para ver el analisis comparativo.")
 
 with tab_analysis:
     # ── MODO BASE DE DATOS (carpeta) ──────────────────────────────────────
