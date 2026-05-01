@@ -1,0 +1,93 @@
+{
+  "fecha": "2026-04-23 04:13",
+  "modelo": "ECG_ResNet_SE",
+  "beat_len": 128,
+  "n_lotes": 6,
+  "epochs_per_batch": 5,
+  "lr_retrain": 0.0001,
+  "buffer_max_size": 2000,
+  "estatico": {
+    "accuracy": 0.9726,
+    "f1_macro": 0.8955
+  },
+  "adaptativo": {
+    "accuracy": 0.9906,
+    "f1_macro": 0.9592
+  },
+  "mejora": {
+    "accuracy": 0.018,
+    "f1_macro": 0.0636
+  },
+  "mcnemar": {
+    "chi2": 1327.51,
+    "p_valor": 0.0
+  },
+  "resultados_por_lote": [
+    {
+      "lote": 0,
+      "n_beats": 15770,
+      "acc_estatico": 0.9743817374762207,
+      "f1_estatico": 0.9061375778210025,
+      "acc_antes": 0.9743817374762207,
+      "f1_antes": 0.9061375778210025,
+      "acc_despues": 0.9743817374762207,
+      "f1_despues": 0.9061375778210025,
+      "buffer_size": 2000
+    },
+    {
+      "lote": 1,
+      "n_beats": 15770,
+      "acc_estatico": 0.9716550412175016,
+      "f1_estatico": 0.9013182995208842,
+      "acc_antes": 0.9716550412175016,
+      "f1_antes": 0.9013182995208842,
+      "acc_despues": 0.9941027266962588,
+      "f1_despues": 0.9733996628274248,
+      "buffer_size": 2000
+    },
+    {
+      "lote": 2,
+      "n_beats": 15770,
+      "acc_estatico": 0.9714648065948003,
+      "f1_estatico": 0.8850680265781043,
+      "acc_antes": 0.9845909955611921,
+      "f1_antes": 0.9329471002955925,
+      "acc_despues": 0.9922003804692454,
+      "f1_despues": 0.9655286809894095,
+      "buffer_size": 2000
+    },
+    {
+      "lote": 3,
+      "n_beats": 15770,
+      "acc_estatico": 0.9719720989220038,
+      "f1_estatico": 0.8958552120941189,
+      "acc_antes": 0.9856689917564997,
+      "f1_antes": 0.94155944256034,
+      "acc_despues": 0.9957514267596702,
+      "f1_despues": 0.9820215050230356,
+      "buffer_size": 2000
+    },
+    {
+      "lote": 4,
+      "n_beats": 15769,
+      "acc_estatico": 0.9732386327604794,
+      "f1_estatico": 0.8897453018627569,
+      "acc_antes": 0.9854144206988394,
+      "f1_antes": 0.934167182900512,
+      "acc_despues": 0.9940389371551779,
+      "f1_despues": 0.9735799754327493,
+      "buffer_size": 2000
+    },
+    {
+      "lote": 5,
+      "n_beats": 15769,
+      "acc_estatico": 0.9730483860739425,
+      "f1_estatico": 0.8943127346127986,
+      "acc_antes": 0.9856680829475554,
+      "f1_antes": 0.937906424605011,
+      "acc_despues": 0.9950535861500412,
+      "f1_despues": 0.9774720103593608,
+      "buffer_size": 2000
+    }
+  ]
+}

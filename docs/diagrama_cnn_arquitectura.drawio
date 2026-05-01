@@ -1,588 +1,374 @@
-<mxGraphModel dx="1500" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3500" pageHeight="2900" math="0" shadow="0">
-  <root>
-    <mxCell id="0"/>
-    <mxCell id="1" parent="0"/>
-
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <!-- TÍTULO PRINCIPAL -->
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <mxCell id="2" value="&lt;font style=&quot;font-size:20px;&quot;&gt;&lt;b&gt;ADAPT-ECG — Arquitectura CNN para Detección Adaptativa de Arritmias Cardiacas&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:12px;&quot;&gt;Modelo Base: ecg_cnn_base.pth &amp;nbsp;|&amp;nbsp; Modelo Adaptativo: ADAPT-ECG-RETRAINED.pth &amp;nbsp;|&amp;nbsp; 44,229 parámetros entrenables&lt;br&gt;Elias Bejarano Lozada #20213057 — Residencia Profesional — Ingeniería Biomédica — ITT&lt;/font&gt;"
-          style="text;html=1;align=center;verticalAlign=middle;strokeColor=#666666;fillColor=#f5f5f5;fontColor=#333333;rounded=1;fontSize=14;"
-          vertex="1" parent="1">
-      <mxGeometry x="150" y="20" width="3100" height="75" as="geometry"/>
-    </mxCell>
-
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <!-- SECCIÓN A: OPERACIÓN DE CONVOLUCIÓN 1D (MATEMÁTICAS) -->
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-
-    <!-- Fondo sección A -->
-    <mxCell id="10" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#f9a825;opacity=60;" vertex="1" parent="1">
-      <mxGeometry x="150" y="120" width="3100" height="340" as="geometry"/>
-    </mxCell>
-
-    <!-- Título sección A -->
-    <mxCell id="11" value="&lt;b&gt;&lt;font style=&quot;font-size:14px;&quot;&gt;A. ¿Cómo Funciona la Convolución 1D? — Operación Matemática&lt;/font&gt;&lt;/b&gt;"
-          style="text;html=1;align=left;strokeColor=none;fillColor=none;fontColor=#e65100;fontSize=13;"
-          vertex="1" parent="1">
-      <mxGeometry x="170" y="130" width="900" height="30" as="geometry"/>
-    </mxCell>
-
-    <!-- Caja de fórmula matemática -->
-    <mxCell id="12" value="&lt;b&gt;Fórmula de Convolución 1D:&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:14px;&quot;&gt;y[n] = &amp;Sigma; w[k] &amp;middot; x[n + k - pad]&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;k=0 a K-1&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Donde:&lt;/b&gt;&lt;br&gt;y[n] = activación de salida en posición n&lt;br&gt;x[ ] = señal ECG de entrada (71 muestras)&lt;br&gt;w[k] = pesos del filtro (APRENDIDOS con backprop)&lt;br&gt;K = tamaño del kernel (5 o 3 según el bloque)&lt;br&gt;pad = ceros agregados en los bordes (2 o 1)"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;align=left;verticalAlign=top;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="170" y="175" width="360" height="250" as="geometry"/>
-    </mxCell>
-
-    <!-- Título visual señal -->
-    <mxCell id="13" value="&lt;b&gt;Señal ECG de entrada x[n] — latido segmentado (71 muestras)&lt;/b&gt;"
-          style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="550" y="178" width="520" height="25" as="geometry"/>
-    </mxCell>
-
-    <!-- Celdas de la señal x[n] — 10 visibles -->
-    <mxCell id="14" value="x[0]&lt;br&gt;0.12" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="550" y="210" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="15" value="x[1]&lt;br&gt;-0.34" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="605" y="210" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <!-- Posiciones activas donde se aplica el kernel (naranja) -->
-    <mxCell id="16" value="x[2]&lt;br&gt;0.87" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="660" y="210" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="17" value="x[3]&lt;br&gt;1.25" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="715" y="210" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="18" value="x[4]&lt;br&gt;0.95" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="770" y="210" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="19" value="x[5]&lt;br&gt;0.43" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="825" y="210" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="20" value="x[6]&lt;br&gt;-0.12" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="880" y="210" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="21" value="x[7]&lt;br&gt;-0.55" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="935" y="210" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="22" value="x[8]&lt;br&gt;0.22" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="990" y="210" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="23" value="..." style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=18;" vertex="1" parent="1">
-      <mxGeometry x="1048" y="212" width="40" height="46" as="geometry"/>
-    </mxCell>
-
-    <!-- Label kernel -->
-    <mxCell id="24" value="&lt;b&gt;Kernel w[k] — 5 pesos entrenables (K=5, Block 1 y 2)&lt;br&gt;Se desliza sobre la señal calculando productos punto&lt;/b&gt;"
-          style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="600" y="273" width="430" height="35" as="geometry"/>
-    </mxCell>
-
-    <!-- Celdas del kernel -->
-    <mxCell id="25" value="w[0]&lt;br&gt;0.21" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="660" y="310" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="26" value="w[1]&lt;br&gt;-0.45" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="715" y="310" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="27" value="w[2]&lt;br&gt;0.78" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="770" y="310" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="28" value="w[3]&lt;br&gt;0.33" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="825" y="310" width="55" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="29" value="w[4]&lt;br&gt;-0.67" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="880" y="310" width="55" height="50" as="geometry"/>
-    </mxCell>
-
-    <!-- Cálculo ejemplo -->
-    <mxCell id="30" value="&lt;b&gt;Cálculo del valor de salida y[2]:&lt;/b&gt;&lt;br&gt;y[2] = x[2]·w[0] + x[3]·w[1] + x[4]·w[2] + x[5]·w[3] + x[6]·w[4]&lt;br&gt;y[2] = 0.87·(0.21) + 1.25·(-0.45) + 0.95·(0.78) + 0.43·(0.33) + (-0.12)·(-0.67)&lt;br&gt;y[2] = 0.183 &amp;nbsp;—&amp;nbsp; 0.563 &amp;nbsp;+&amp;nbsp; 0.741 &amp;nbsp;+&amp;nbsp; 0.142 &amp;nbsp;+&amp;nbsp; 0.080 = &lt;b&gt;0.583&lt;/b&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="550" y="380" width="680" height="70" as="geometry"/>
-    </mxCell>
-
-    <!-- Nota sobre los 32 filtros -->
-    <mxCell id="31" value="&lt;b&gt;¿Qué detecta la CNN?&lt;/b&gt;&lt;br&gt;&lt;br&gt;Block 1 tiene &lt;b&gt;32 filtros (kernels)&lt;/b&gt; distintos. Cada uno aprende a detectar un patrón diferente:&lt;br&gt;• Pico R (contracción ventricular)&lt;br&gt;• Onda P (despolarización auricular)&lt;br&gt;• Onda T (repolarización ventricular)&lt;br&gt;• Segmento QRS y sus variaciones&lt;br&gt;&lt;br&gt;Block 2 tiene 64 filtros → combina patrones de Block 1&lt;br&gt;Block 3 tiene 128 filtros → representaciones de alto nivel&lt;br&gt;&lt;br&gt;Los pesos w[k] se aprenden automáticamente con &lt;b&gt;backpropagation&lt;/b&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#4caf50;align=left;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="1260" y="175" width="430" height="250" as="geometry"/>
-    </mxCell>
-
-    <!-- BatchNorm y ReLU explicación -->
-    <mxCell id="32" value="&lt;b&gt;BatchNorm1d — ¿Para qué sirve?&lt;/b&gt;&lt;br&gt;Normaliza las activaciones de cada capa.&lt;br&gt;Estabiliza el entrenamiento y permite&lt;br&gt;usar learning rates más altos.&lt;br&gt;&lt;br&gt;&lt;b&gt;ReLU — ¿Qué hace?&lt;/b&gt;&lt;br&gt;f(x) = max(0, x)&lt;br&gt;Activa solo valores positivos.&lt;br&gt;Introduce no-linealidad → permite&lt;br&gt;aprender patrones complejos.&lt;br&gt;&lt;br&gt;&lt;b&gt;MaxPool1d(2) — ¿Qué hace?&lt;/b&gt;&lt;br&gt;Reduce la longitud a la mitad.&lt;br&gt;Se queda con el valor máximo&lt;br&gt;de cada ventana de 2 muestras.&lt;br&gt;Reduce parámetros y hace el modelo&lt;br&gt;más robusto a desplazamientos."
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1565c0;align=left;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="1720" y="175" width="310" height="270" as="geometry"/>
-    </mxCell>
-
-    <!-- Dropout explicación -->
-    <mxCell id="33" value="&lt;b&gt;Dropout(p=0.5)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Durante entrenamiento:&lt;br&gt;desactiva aleatoriamente&lt;br&gt;el 50% de neuronas.&lt;br&gt;&lt;br&gt;Durante inferencia:&lt;br&gt;usa todas las neuronas.&lt;br&gt;&lt;br&gt;Previene sobreajuste&lt;br&gt;(memorizar en lugar&lt;br&gt;de generalizar)"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#c62828;align=left;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="2060" y="175" width="220" height="250" as="geometry"/>
-    </mxCell>
-
-    <!-- Parámetros totales quick ref -->
-    <mxCell id="34" value="&lt;b&gt;Conteo de parámetros:&lt;/b&gt;&lt;br&gt;Block 1 Conv: 1×32×5 + 32 = &lt;b&gt;192&lt;/b&gt;&lt;br&gt;Block 2 Conv: 32×64×5 + 64 = &lt;b&gt;10,304&lt;/b&gt;&lt;br&gt;Block 3 Conv: 64×128×3 + 128 = &lt;b&gt;24,704&lt;/b&gt;&lt;br&gt;BatchNorm ×3: 2×(32+64+128) = &lt;b&gt;448&lt;/b&gt;&lt;br&gt;Linear(128→64): 128×64+64 = &lt;b&gt;8,256&lt;/b&gt;&lt;br&gt;Linear(64→5): 64×5+5 = &lt;b&gt;325&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;TOTAL: 44,229 parámetros&lt;/b&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;align=left;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="2310" y="175" width="300" height="250" as="geometry"/>
-    </mxCell>
-
-
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <!-- SECCIÓN B: PIPELINE CNN COMPLETO (FORWARD PASS) -->
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-
-    <!-- Fondo sección B -->
-    <mxCell id="50" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#9c27b0;opacity=30;" vertex="1" parent="1">
-      <mxGeometry x="150" y="490" width="3100" height="450" as="geometry"/>
-    </mxCell>
-
-    <!-- Título sección B -->
-    <mxCell id="51" value="&lt;b&gt;&lt;font style=&quot;font-size:14px;&quot;&gt;B. Pipeline Completo de la CNN — Forward Pass (Inferencia en tiempo real)&lt;/font&gt;&lt;/b&gt;"
-          style="text;html=1;align=left;strokeColor=none;fillColor=none;fontColor=#6a1b9a;fontSize=13;"
-          vertex="1" parent="1">
-      <mxGeometry x="170" y="500" width="1200" height="30" as="geometry"/>
-    </mxCell>
-
-    <!-- ─── INPUT ────────────────────────────────────────────────────── -->
-    <mxCell id="52" value="&lt;b&gt;INPUT&lt;/b&gt;&lt;br&gt;&lt;br&gt;Latido ECG&lt;br&gt;segmentado y&lt;br&gt;normalizado&lt;br&gt;&lt;br&gt;Tensor:&lt;br&gt;&lt;b&gt;(batch, 1, 71)&lt;/b&gt;&lt;br&gt;&lt;br&gt;71 muestras:&lt;br&gt;35 antes del&lt;br&gt;pico R + pico R&lt;br&gt;+ 36 después"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#23445d;fontStyle=1;fontSize=10;"
-          vertex="1" parent="1">
-      <mxGeometry x="170" y="550" width="130" height="210" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha Input → Block1 -->
-    <mxCell id="53" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="52" target="60" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- ─── BLOCK 1 ────────────────────────────────────────────────────── -->
-    <mxCell id="60" value="&lt;b&gt;BLOQUE 1&lt;/b&gt;" style="swimlane;startSize=28;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="330" y="520" width="240" height="290" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="61" value="&lt;b&gt;Conv1d&lt;/b&gt;&lt;br&gt;in_ch=1 → out_ch=32&lt;br&gt;kernel_size=5, pad=2&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(batch, 32, 71)&lt;br&gt;32 filtros distintos&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;" vertex="1" parent="60">
-      <mxGeometry x="15" y="38" width="210" height="75" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="62" value="&lt;b&gt;BatchNorm1d(32) + ReLU&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Normaliza y activa&lt;br&gt;solo valores positivos&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="60">
-      <mxGeometry x="15" y="123" width="210" height="55" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="63" value="&lt;b&gt;MaxPool1d(2)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;71 → 35 muestras&lt;br&gt;Toma el máximo de cada par&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="60">
-      <mxGeometry x="15" y="188" width="210" height="55" as="geometry"/>
-    </mxCell>
-
-    <!-- Label dimensión salida Block 1 -->
-    <mxCell id="64" value="(batch, 32, 35)" style="text;html=1;align=center;strokeColor=#d79b00;fillColor=#fff2cc;rounded=1;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="578" y="640" width="115" height="28" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha Block1 → Block2 -->
-    <mxCell id="65" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" source="60" target="70" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- ─── BLOCK 2 ────────────────────────────────────────────────────── -->
-    <mxCell id="70" value="&lt;b&gt;BLOQUE 2&lt;/b&gt;" style="swimlane;startSize=28;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="710" y="520" width="240" height="290" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="71" value="&lt;b&gt;Conv1d&lt;/b&gt;&lt;br&gt;in_ch=32 → out_ch=64&lt;br&gt;kernel_size=5, pad=2&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(batch, 64, 35)&lt;br&gt;Combina patrones del Block 1&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;" vertex="1" parent="70">
-      <mxGeometry x="15" y="38" width="210" height="75" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="72" value="&lt;b&gt;BatchNorm1d(64) + ReLU&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Detecta patrones más complejos&lt;br&gt;combinando los 32 anteriores&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="70">
-      <mxGeometry x="15" y="123" width="210" height="55" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="73" value="&lt;b&gt;MaxPool1d(2)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;35 → 17 muestras&lt;br&gt;Toma el máximo de cada par&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="70">
-      <mxGeometry x="15" y="188" width="210" height="55" as="geometry"/>
-    </mxCell>
-
-    <!-- Label dimensión salida Block 2 -->
-    <mxCell id="74" value="(batch, 64, 17)" style="text;html=1;align=center;strokeColor=#d79b00;fillColor=#fff2cc;rounded=1;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="958" y="640" width="115" height="28" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha Block2 → Block3 -->
-    <mxCell id="75" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" source="70" target="80" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- ─── BLOCK 3 ────────────────────────────────────────────────────── -->
-    <mxCell id="80" value="&lt;b&gt;BLOQUE 3&lt;/b&gt;" style="swimlane;startSize=28;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="1090" y="520" width="240" height="290" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="81" value="&lt;b&gt;Conv1d&lt;/b&gt;&lt;br&gt;in_ch=64 → out_ch=128&lt;br&gt;kernel_size=3, pad=1&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(batch, 128, 17)&lt;br&gt;Representaciones de alto nivel&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;" vertex="1" parent="80">
-      <mxGeometry x="15" y="38" width="210" height="75" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="82" value="&lt;b&gt;BatchNorm1d(128) + ReLU&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Morfología completa del latido:&lt;br&gt;forma QRS, segmento ST, onda T&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="80">
-      <mxGeometry x="15" y="123" width="210" height="55" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="83" value="&lt;b&gt;MaxPool1d(2)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;17 → 8 muestras&lt;br&gt;Toma el máximo de cada par&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="80">
-      <mxGeometry x="15" y="188" width="210" height="55" as="geometry"/>
-    </mxCell>
-
-    <!-- Label dimensión salida Block 3 -->
-    <mxCell id="84" value="(batch, 128, 8)" style="text;html=1;align=center;strokeColor=#d79b00;fillColor=#fff2cc;rounded=1;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="1338" y="640" width="115" height="28" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha Block3 → AvgPool -->
-    <mxCell id="85" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" source="80" target="90" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- ─── ADAPTIVE AVG POOL ─────────────────────────────────────────── -->
-    <mxCell id="90" value="&lt;b&gt;AdaptiveAvgPool1d(1)&lt;/b&gt;&lt;br&gt;&lt;br&gt;8 muestras → 1&lt;br&gt;Promedia todo el canal&lt;br&gt;&lt;br&gt;&lt;b&gt;(batch, 128, 1)&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Un valor por canal&lt;br&gt;independiente del tamaño&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="1360" y="575" width="175" height="150" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha AvgPool → Flatten -->
-    <mxCell id="91" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" source="90" target="95" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- ─── FLATTEN ─────────────────────────────────────────────────── -->
-    <mxCell id="95" value="&lt;b&gt;Flatten&lt;/b&gt;&lt;br&gt;&lt;br&gt;(batch,128,1)&lt;br&gt;→&lt;br&gt;&lt;b&gt;(batch, 128)&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Vector 1D listo&lt;br&gt;para capas densas&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="1565" y="580" width="145" height="140" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha Flatten → Classifier -->
-    <mxCell id="96" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" source="95" target="100" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- ─── CLASSIFIER ────────────────────────────────────────────────── -->
-    <mxCell id="100" value="&lt;b&gt;CLASIFICADOR (self.classifier)&lt;/b&gt;" style="swimlane;startSize=28;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="1740" y="520" width="260" height="290" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="101" value="&lt;b&gt;Linear(128 → 64)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;8,192 pesos + 64 bias = 8,256&lt;br&gt;Comprime la representación&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="100">
-      <mxGeometry x="15" y="38" width="230" height="55" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="102" value="&lt;b&gt;ReLU&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;f(x) = max(0, x)&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="100">
-      <mxGeometry x="15" y="103" width="230" height="40" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="103" value="&lt;b&gt;Dropout(p=0.5)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Desactiva 50% de neuronas al azar&lt;br&gt;Solo activo en entrenamiento&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="100">
-      <mxGeometry x="15" y="153" width="230" height="50" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="104" value="&lt;b&gt;Linear(64 → 5)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;320 pesos + 5 bias = 325&lt;br&gt;5 logits (uno por clase AAMI)&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="100">
-      <mxGeometry x="15" y="213" width="230" height="55" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha Classifier → Softmax -->
-    <mxCell id="105" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" source="100" target="110" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- ─── SOFTMAX ─────────────────────────────────────────────────── -->
-    <mxCell id="110" value="&lt;b&gt;Softmax&lt;/b&gt;&lt;br&gt;predict_proba()&lt;br&gt;&lt;br&gt;5 probabilidades&lt;br&gt;&amp;Sigma; = 1.0&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Convierte logits&lt;br&gt;en probabilidades&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="2030" y="575" width="145" height="150" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha Softmax → Clases -->
-    <mxCell id="111" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" source="110" target="120" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- ─── CLASES DE SALIDA ───────────────────────────────────────── -->
-    <mxCell id="120" value="&lt;b&gt;CLASES AAMI&lt;/b&gt;" style="swimlane;startSize=28;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="2205" y="520" width="210" height="290" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="121" value="🔵 N — Normal (79.3%)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2196F3;fontColor=#ffffff;strokeColor=#1565c0;fontSize=11;" vertex="1" parent="120">
-      <mxGeometry x="10" y="38" width="190" height="38" as="geometry"/>
-    </mxCell>
-    <mxCell id="122" value="🟠 S — Supraventricular (3.2%)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;fontColor=#000000;strokeColor=#e65100;fontSize=11;" vertex="1" parent="120">
-      <mxGeometry x="10" y="84" width="190" height="38" as="geometry"/>
-    </mxCell>
-    <mxCell id="123" value="🔴 V — Ventricular (7.6%)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;fontColor=#ffffff;strokeColor=#b71c1c;fontSize=11;" vertex="1" parent="120">
-      <mxGeometry x="10" y="130" width="190" height="38" as="geometry"/>
-    </mxCell>
-    <mxCell id="124" value="🟣 F — Fusión (0.8%)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;fontColor=#ffffff;strokeColor=#4a148c;fontSize=11;" vertex="1" parent="120">
-      <mxGeometry x="10" y="176" width="190" height="38" as="geometry"/>
-    </mxCell>
-    <mxCell id="125" value="⚫ Q — Desconocido (9.0%)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#607D8B;fontColor=#ffffff;strokeColor=#263238;fontSize=11;" vertex="1" parent="120">
-      <mxGeometry x="10" y="222" width="190" height="38" as="geometry"/>
-    </mxCell>
-
-    <!-- ─── BARRA DE DIMENSIONES (resumen horizontal) ─────────────── -->
-    <mxCell id="126" value="&lt;b&gt;Evolución del tensor a lo largo del pipeline:&lt;/b&gt;"
-          style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="170" y="848" width="500" height="25" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="127" value="Input&lt;br&gt;(1×71)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="170" y="878" width="85" height="45" as="geometry"/>
-    </mxCell>
-    <mxCell id="128" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-      <mxGeometry x="258" y="886" width="25" height="28" as="geometry"/>
-    </mxCell>
-    <mxCell id="129" value="Block1&lt;br&gt;(32×35)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="286" y="878" width="90" height="45" as="geometry"/>
-    </mxCell>
-    <mxCell id="130" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-      <mxGeometry x="379" y="886" width="25" height="28" as="geometry"/>
-    </mxCell>
-    <mxCell id="131" value="Block2&lt;br&gt;(64×17)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="407" y="878" width="90" height="45" as="geometry"/>
-    </mxCell>
-    <mxCell id="132" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-      <mxGeometry x="500" y="886" width="25" height="28" as="geometry"/>
-    </mxCell>
-    <mxCell id="133" value="Block3&lt;br&gt;(128×8)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="528" y="878" width="90" height="45" as="geometry"/>
-    </mxCell>
-    <mxCell id="134" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-      <mxGeometry x="621" y="886" width="25" height="28" as="geometry"/>
-    </mxCell>
-    <mxCell id="135" value="AvgPool&lt;br&gt;(128×1)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="649" y="878" width="85" height="45" as="geometry"/>
-    </mxCell>
-    <mxCell id="136" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-      <mxGeometry x="737" y="886" width="25" height="28" as="geometry"/>
-    </mxCell>
-    <mxCell id="137" value="Flatten&lt;br&gt;(128)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="765" y="878" width="80" height="45" as="geometry"/>
-    </mxCell>
-    <mxCell id="138" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-      <mxGeometry x="848" y="886" width="25" height="28" as="geometry"/>
-    </mxCell>
-    <mxCell id="139" value="Linear1&lt;br&gt;(64)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="876" y="878" width="75" height="45" as="geometry"/>
-    </mxCell>
-    <mxCell id="140" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-      <mxGeometry x="954" y="886" width="25" height="28" as="geometry"/>
-    </mxCell>
-    <mxCell id="141" value="Linear2&lt;br&gt;(5)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="982" y="878" width="70" height="45" as="geometry"/>
-    </mxCell>
-    <mxCell id="142" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-      <mxGeometry x="1055" y="886" width="25" height="28" as="geometry"/>
-    </mxCell>
-    <mxCell id="143" value="Softmax&lt;br&gt;N/S/V/F/Q" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="1083" y="878" width="90" height="45" as="geometry"/>
-    </mxCell>
-
-
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <!-- SECCIÓN C: MÓDULO DE REENTRENAMIENTO CONTINUO -->
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-
-    <!-- Fondo sección C -->
-    <mxCell id="200" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#4caf50;opacity=40;" vertex="1" parent="1">
-      <mxGeometry x="150" y="960" width="3100" height="650" as="geometry"/>
-    </mxCell>
-
-    <!-- Título sección C -->
-    <mxCell id="201" value="&lt;b&gt;&lt;font style=&quot;font-size:14px;&quot;&gt;C. Módulo de Reentrenamiento Continuo — Diferencia entre Modelo Base y Modelo Adaptativo&lt;/font&gt;&lt;/b&gt;"
-          style="text;html=1;align=left;strokeColor=none;fillColor=none;fontColor=#1b5e20;fontSize=13;"
-          vertex="1" parent="1">
-      <mxGeometry x="170" y="972" width="2000" height="30" as="geometry"/>
-    </mxCell>
-
-    <!-- Modelo Base -->
-    <mxCell id="202" value="&lt;b&gt;ecg_cnn_base.pth&lt;/b&gt;&lt;br&gt;&lt;i&gt;Modelo Base (Estático)&lt;/i&gt;&lt;br&gt;&lt;br&gt;Entrenado con:&lt;br&gt;• 94,627 latidos totales&lt;br&gt;• 30 épocas completas&lt;br&gt;• lr = 1e-3 (Adam)&lt;br&gt;• Batch = 64&lt;br&gt;• Weighted NLLLoss&lt;br&gt;&lt;br&gt;Resultado:&lt;br&gt;&lt;b&gt;Accuracy: 93.54%&lt;/b&gt;&lt;br&gt;&lt;b&gt;F1 Macro: 0.7849&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;NO se modifica con nuevos datos&lt;br&gt;Sirve como punto de referencia&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#23445d;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="170" y="1020" width="210" height="270" as="geometry"/>
-    </mxCell>
-
-    <!-- Replay Buffer -->
-    <mxCell id="210" value="&lt;b&gt;Replay Buffer&lt;/b&gt;&lt;br&gt;replay_buffer.npz&lt;br&gt;&lt;br&gt;• Capacidad: 2,000 latidos&lt;br&gt;• Almacena muestras pasadas&lt;br&gt;• Selección aleatoria (sample)&lt;br&gt;• Persistente entre sesiones&lt;br&gt;&lt;br&gt;&lt;b&gt;Propósito:&lt;/b&gt;&lt;br&gt;Evitar Catastrophic Forgetting.&lt;br&gt;Al entrenar con pacientes nuevos,&lt;br&gt;el modelo no olvida los anteriores&lt;br&gt;porque sigue viendo muestras&lt;br&gt;del buffer en cada sesión."
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="530" y="1020" width="220" height="270" as="geometry"/>
-    </mxCell>
-
-    <!-- Nuevos datos -->
-    <mxCell id="211" value="&lt;b&gt;Nuevos datos de paciente&lt;/b&gt;&lt;br&gt;(Registro MIT-BIH seleccionado)&lt;br&gt;&lt;br&gt;• Segmentación de latidos&lt;br&gt;• Etiquetas reales del archivo .atr&lt;br&gt;• Mapeo AAMI aplicado&lt;br&gt;&lt;br&gt;Ej: Registro 208&lt;br&gt;(N, V, S — &gt;2,000 latidos)"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="530" y="1330" width="220" height="200" as="geometry"/>
-    </mxCell>
-
-    <!-- Mezcla 50/50 -->
-    <mxCell id="212" value="&lt;b&gt;Mezcla de Datos&lt;/b&gt;&lt;br&gt;50% Buffer + 50% Nuevos&lt;br&gt;&lt;br&gt;np.random.permutation()&lt;br&gt;&lt;br&gt;Garantiza que el modelo vea&lt;br&gt;datos de TODOS los pacientes&lt;br&gt;en cada sesión de entrenamiento.&lt;br&gt;&lt;br&gt;Evita sesgo hacia los últimos datos."
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="880" y="1150" width="215" height="210" as="geometry"/>
-    </mxCell>
-
-    <!-- Flechas hacia mezcla -->
-    <mxCell id="213" value="Muestras del pasado" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#f9a825;strokeWidth=2;fontSize=9;" edge="1" source="210" target="212" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-    <mxCell id="214" value="Datos nuevos" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;fontSize=9;" edge="1" source="211" target="212" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- incremental_train -->
-    <mxCell id="215" value="&lt;b&gt;incremental_train()&lt;/b&gt;&lt;br&gt;&lt;br&gt;• Optimizer: Adam&lt;br&gt;• lr = 1e-4 &lt;b&gt;(10x menor)&lt;/b&gt;&lt;br&gt;• Loss: CrossEntropyLoss&lt;br&gt;• Épocas por sesión: 5&lt;br&gt;• Batch: 64&lt;br&gt;&lt;br&gt;&lt;b&gt;Por qué lr más pequeño:&lt;/b&gt;&lt;br&gt;Cambios pequeños conservan&lt;br&gt;el conocimiento base.&lt;br&gt;Solo ajusta ligeramente los&lt;br&gt;pesos hacia los nuevos datos."
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="1230" y="1100" width="225" height="270" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha mezcla → incremental_train -->
-    <mxCell id="216" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" source="212" target="215" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha Modelo Base → incremental_train (carga pesos) -->
-    <mxCell id="217" value="Carga pesos&lt;br&gt;iniciales" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;fontSize=9;" edge="1" source="202" target="215" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- Modelo Adaptativo -->
-    <mxCell id="220" value="&lt;b&gt;ADAPT-ECG-RETRAINED.pth&lt;/b&gt;&lt;br&gt;&lt;i&gt;Modelo Adaptativo&lt;/i&gt;&lt;br&gt;&lt;br&gt;• Misma arquitectura CNN&lt;br&gt;• Pesos ACTUALIZADOS&lt;br&gt;• Se actualiza en cada sesión&lt;br&gt;&lt;br&gt;Resultado (Fase 3):&lt;br&gt;&lt;b&gt;Accuracy: 97.83%&lt;/b&gt;&lt;br&gt;&lt;b&gt;F1 Macro: 0.9071&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mejora vs Base:&lt;br&gt;&lt;b&gt;+4.29% accuracy&lt;/b&gt;&lt;br&gt;&lt;b&gt;+0.1222 F1 Macro&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;SÍ cambia con nuevos datos&lt;/font&gt;"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#1b5e20;fontSize=11;fontStyle=1;"
-          vertex="1" parent="1">
-      <mxGeometry x="1590" y="1020" width="220" height="320" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha incremental_train → Adaptativo -->
-    <mxCell id="221" value="Guarda pesos&lt;br&gt;actualizados" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;fontSize=9;" edge="1" source="215" target="220" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- Actualiza Replay Buffer -->
-    <mxCell id="222" value="&lt;b&gt;Actualiza Replay Buffer&lt;/b&gt;&lt;br&gt;&lt;br&gt;Agrega nuevos latidos al buffer.&lt;br&gt;Si supera 2,000 → elimina los más antiguos.&lt;br&gt;(Cola FIFO — primero en entrar, primero en salir)"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="1590" y="1420" width="320" height="90" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha Adaptativo → Actualiza Buffer -->
-    <mxCell id="223" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#f9a825;strokeWidth=2;" edge="1" source="220" target="222" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha vuelta al Buffer (loop) -->
-    <mxCell id="224" value="&lt;b&gt;Próxima sesión&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#f9a825;strokeWidth=2;dashed=1;fontSize=10;" edge="1" source="222" target="210" parent="1">
-      <mxGeometry relative="1" as="geometry">
-        <Array as="points">
-          <mxPoint x="1750" y="1560"/>
-          <mxPoint x="640" y="1560"/>
-        </Array>
-      </mxGeometry>
-    </mxCell>
-
-    <!-- Historial -->
-    <mxCell id="225" value="&lt;b&gt;retrain_history.json&lt;/b&gt;&lt;br&gt;&lt;br&gt;Registra por sesión:&lt;br&gt;• Accuracy antes / después&lt;br&gt;• F1-Score antes / después&lt;br&gt;• Latidos procesados&lt;br&gt;• Loss por época&lt;br&gt;• Fecha y hora"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="1940" y="1100" width="215" height="200" as="geometry"/>
-    </mxCell>
-
-    <!-- Flecha Adaptativo → Historial -->
-    <mxCell id="226" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#3949ab;strokeWidth=2;" edge="1" source="220" target="225" parent="1">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-
-    <!-- Caja diferencia Base vs Adaptativo -->
-    <mxCell id="230" value="&lt;b&gt;¿Cuál es la diferencia entre Modelo Base y Modelo Adaptativo?&lt;/b&gt;&lt;br&gt;&lt;br&gt;• &lt;b&gt;Misma arquitectura:&lt;/b&gt; ECG_CNN exacta con 44,229 parámetros&lt;br&gt;• &lt;b&gt;La diferencia son los VALORES de los pesos:&lt;/b&gt; w[k] en Conv1d y matrices W en Linear&lt;br&gt;• El modelo base fue entrenado una sola vez con todos los datos (30 épocas, lr=1e-3)&lt;br&gt;• El modelo adaptativo refina sus pesos sesión a sesión (5 épocas c/u, lr=1e-4)&lt;br&gt;• El adaptativo reconoce mejor patrones de nuevos pacientes SIN olvidar los anteriores"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1565c0;align=left;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="2200" y="1020" width="1000" height="155" as="geometry"/>
-    </mxCell>
-
-    <!-- Comparativa Fase 4 -->
-    <mxCell id="231" value="&lt;b&gt;Comparativa Final — Fase 4 (75,702 latidos, lotes 1-4)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Modelo Estático:   Accuracy = 88.72%  |  F1 Macro = 0.7381&lt;br&gt;Modelo Adaptativo: Accuracy = 97.41%  |  F1 Macro = 0.8954&lt;br&gt;&lt;br&gt;&lt;b&gt;Mejora: +8.69% accuracy &amp;nbsp;|&amp;nbsp; +0.1573 F1 Macro&lt;/b&gt;&lt;br&gt;McNemar: &amp;chi;&amp;sup2; = 5342, p &amp;asymp; 0 → Diferencia estadísticamente significativa"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#1b5e20;align=left;fontSize=12;fontStyle=1;"
-          vertex="1" parent="1">
-      <mxGeometry x="2200" y="1215" width="1000" height="140" as="geometry"/>
-    </mxCell>
-
-    <!-- Notas técnicas importantes -->
-    <mxCell id="232" value="&lt;b&gt;Notas técnicas importantes:&lt;/b&gt;&lt;br&gt;• BEAT_LEN = 71 (35 antes + pico R + 36 después)&lt;br&gt;• La capa clasificadora se llama self.classifier (no self.fc)&lt;br&gt;• Keys de los pesos: classifier.1 (Linear 128→64), classifier.4 (Linear 64→5)&lt;br&gt;• Registro 124 solo tiene 88 latidos (marcapaso) — no usar para demo&lt;br&gt;• Mejores registros para demo: 100, 200, 208 (&gt;2,000 latidos, variedad de clases)"
-          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#c62828;align=left;fontSize=11;"
-          vertex="1" parent="1">
-      <mxGeometry x="2200" y="1400" width="1000" height="140" as="geometry"/>
-    </mxCell>
-
-
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <!-- LEYENDA -->
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <mxCell id="240" value="&lt;b&gt;LEYENDA DE COLORES&lt;/b&gt;" style="swimlane;startSize=28;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="150" y="1640" width="3100" height="110" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="241" value="Conv1d" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=11;" vertex="1" parent="240">
-      <mxGeometry x="10" y="38" width="110" height="40" as="geometry"/>
-    </mxCell>
-    <mxCell id="242" value="BatchNorm + ReLU" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="240">
-      <mxGeometry x="130" y="38" width="140" height="40" as="geometry"/>
-    </mxCell>
-    <mxCell id="243" value="MaxPool / AvgPool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="240">
-      <mxGeometry x="280" y="38" width="145" height="40" as="geometry"/>
-    </mxCell>
-    <mxCell id="244" value="Capas Clasificadoras" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="240">
-      <mxGeometry x="435" y="38" width="155" height="40" as="geometry"/>
-    </mxCell>
-    <mxCell id="245" value="Flatten / Softmax" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="240">
-      <mxGeometry x="600" y="38" width="140" height="40" as="geometry"/>
-    </mxCell>
-    <mxCell id="246" value="Replay Buffer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=11;" vertex="1" parent="240">
-      <mxGeometry x="750" y="38" width="125" height="40" as="geometry"/>
-    </mxCell>
-    <mxCell id="247" value="Modelo Adaptativo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#1b5e20;fontSize=11;" vertex="1" parent="240">
-      <mxGeometry x="885" y="38" width="145" height="40" as="geometry"/>
-    </mxCell>
-    <mxCell id="248" value="Input / Tensor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="240">
-      <mxGeometry x="1040" y="38" width="130" height="40" as="geometry"/>
-    </mxCell>
-    <mxCell id="249" value="Historial / Métricas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" vertex="1" parent="240">
-      <mxGeometry x="1180" y="38" width="145" height="40" as="geometry"/>
-    </mxCell>
-    <mxCell id="250" value="Mezcla de Datos" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1" parent="240">
-      <mxGeometry x="1335" y="38" width="130" height="40" as="geometry"/>
-    </mxCell>
-    <mxCell id="251" value="incremental_train()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="240">
-      <mxGeometry x="1475" y="38" width="150" height="40" as="geometry"/>
-    </mxCell>
-
-    <mxCell id="252" value="&lt;i&gt;Elias Bejarano Lozada #20213057 — Residencia Profesional — Ingeniería Biomédica — Instituto Tecnológico de Tijuana (ITT) — 2026&lt;/i&gt;"
-          style="text;html=1;align=right;fontSize=10;strokeColor=none;fillColor=none;"
-          vertex="1" parent="240">
-      <mxGeometry x="1800" y="48" width="1290" height="25" as="geometry"/>
-    </mxCell>
-
-  </root>
-</mxGraphModel>
+<mxfile host="65bd71144e">
+    <diagram id="gl_i_FrnnZy3A-a5E7aa" name="Page-1">
+        <mxGraphModel dx="1126" dy="563" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="&lt;font style=&quot;font-size:20px;&quot;&gt;&lt;b&gt;ADAPT-ECG — Arquitectura CNN para Detección Adaptativa de Arritmias Cardiacas&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:12px;&quot;&gt;Modelo Base: ecg_cnn_base.pth &amp;nbsp;|&amp;nbsp; Modelo Adaptativo: ADAPT-ECG-RETRAINED.pth &amp;nbsp;|&amp;nbsp; 44,229 parámetros entrenables&lt;br&gt;Elias Bejarano Lozada #20213057 — Residencia Profesional — Ingeniería Biomédica — ITT&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;strokeColor=#666666;fillColor=#f5f5f5;fontColor=#333333;rounded=0;fontSize=14;" parent="1" vertex="1">
+                    <mxGeometry x="150" y="20" width="3100" height="75" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#f9a825;opacity=60;" parent="1" vertex="1">
+                    <mxGeometry x="150" y="120" width="2560" height="340" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="&lt;b&gt;&lt;font style=&quot;font-size:14px;&quot;&gt;A. Operación Matemática&lt;/font&gt;&lt;/b&gt;" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontColor=#e65100;fontSize=13;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="130" width="900" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="&lt;b&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; Fórmula de Convolución 1D:&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:14px;&quot;&gt;y[n] = Σ w[k] · x[n + k - pad]&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;k=0 a K-1&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Donde:&lt;/b&gt;&lt;br&gt;y[n] = activación de salida en posición n&lt;br&gt;x[ ] = señal ECG de entrada (71 muestras)&lt;br&gt;w[k] = pesos del filtro (APRENDIDOS con backprop)&lt;br&gt;K = tamaño del kernel (5 o 3 según el bloque)&lt;br&gt;pad = ceros agregados en los bordes (2 o 1)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;align=center;verticalAlign=top;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="170" width="370" height="255" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="&lt;b&gt;Señal ECG de entrada x[n] — latido segmentado (71 muestras)&lt;/b&gt;" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=11;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="550" y="178" width="520" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="x[0]&lt;br&gt;0.12" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="550" y="210" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="x[1]&lt;br&gt;-0.34" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="605" y="210" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="x[2]&lt;br&gt;0.87" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="660" y="210" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="x[3]&lt;br&gt;1.25" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="715" y="210" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="x[4]&lt;br&gt;0.95" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="770" y="210" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="x[5]&lt;br&gt;0.43" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="825" y="210" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="x[6]&lt;br&gt;-0.12" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="880" y="210" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="x[7]&lt;br&gt;-0.55" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="935" y="210" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="x[8]&lt;br&gt;0.22" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="990" y="210" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="..." style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=18;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="1048" y="212" width="40" height="46" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="&lt;b&gt;Kernel w[k] — 5 pesos entrenables (K=5, Block 1 y 2)&lt;br&gt;Se desliza sobre la señal calculando productos punto&lt;/b&gt;" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=11;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="600" y="273" width="430" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="w[0]&lt;br&gt;0.21" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="660" y="310" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="w[1]&lt;br&gt;-0.45" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="715" y="310" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="w[2]&lt;br&gt;0.78" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="770" y="310" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="w[3]&lt;br&gt;0.33" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="825" y="310" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" value="w[4]&lt;br&gt;-0.67" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="880" y="310" width="55" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="&lt;b&gt;Cálculo del valor de salida y[2]:&lt;/b&gt;&lt;br&gt;y[2] = x[2]·w[0] + x[3]·w[1] + x[4]·w[2] + x[5]·w[3] + x[6]·w[4]&lt;br&gt;y[2] = 0.87·(0.21) + 1.25·(-0.45) + 0.95·(0.78) + 0.43·(0.33) + (-0.12)·(-0.67)&lt;br&gt;y[2] = 0.183 &amp;nbsp;—&amp;nbsp; 0.563 &amp;nbsp;+&amp;nbsp; 0.741 &amp;nbsp;+&amp;nbsp; 0.142 &amp;nbsp;+&amp;nbsp; 0.080 = &lt;b&gt;0.583&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="550" y="380" width="680" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="&lt;br&gt;&lt;br&gt;Block 1 tiene &lt;b&gt;32 filtros (kernels)&lt;/b&gt; distintos. Cada uno aprende a detectar un patrón diferente:&lt;br&gt;• Pico R (contracción ventricular)&lt;br&gt;• Onda P (despolarización auricular)&lt;br&gt;• Onda T (repolarización ventricular)&lt;br&gt;• Segmento QRS y sus variaciones&lt;br&gt;&lt;br&gt;Block 2 tiene 64 filtros → combina patrones de Block 1&lt;br&gt;Block 3 tiene 128 filtros → representaciones de alto nivel&lt;br&gt;&lt;br&gt;Los pesos w[k] se aprenden automáticamente con &lt;b&gt;backpropagation&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#4caf50;align=center;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1260" y="175" width="430" height="250" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="&lt;b&gt;BatchNorm1d — ¿Para qué sirve?&lt;/b&gt;&lt;br&gt;Normaliza las activaciones de cada capa.&lt;br&gt;Estabiliza el entrenamiento y permite&lt;br&gt;usar learning rates más altos.&lt;br&gt;&lt;br&gt;&lt;b&gt;ReLU — ¿Qué hace?&lt;/b&gt;&lt;br&gt;f(x) = max(0, x)&lt;br&gt;Activa solo valores positivos.&lt;br&gt;Introduce no-linealidad → permite&lt;br&gt;aprender patrones complejos.&lt;br&gt;&lt;br&gt;&lt;b&gt;MaxPool1d(2) — ¿Qué hace?&lt;/b&gt;&lt;br&gt;Reduce la longitud a la mitad.&lt;br&gt;Se queda con el valor máximo&lt;br&gt;de cada ventana de 2 muestras.&lt;br&gt;Reduce parámetros y hace el modelo&lt;br&gt;más robusto a desplazamientos." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1565c0;align=center;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1720" y="175" width="310" height="270" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" value="&lt;b&gt;Dropout(p=0.5)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Durante entrenamiento:&lt;br&gt;desactiva aleatoriamente&lt;br&gt;el 50% de neuronas.&lt;br&gt;&lt;br&gt;Durante inferencia:&lt;br&gt;usa todas las neuronas.&lt;br&gt;&lt;br&gt;Previene sobreajuste&lt;br&gt;(memorizar en lugar&lt;br&gt;de generalizar)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#c62828;align=center;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="2060" y="175" width="220" height="250" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" value="&lt;b&gt;Conteo de parámetros:&lt;/b&gt;&lt;br&gt;Block 1 Conv: 1×32×5 + 32 = &lt;b&gt;192&lt;/b&gt;&lt;br&gt;Block 2 Conv: 32×64×5 + 64 = &lt;b&gt;10,304&lt;/b&gt;&lt;br&gt;Block 3 Conv: 64×128×3 + 128 = &lt;b&gt;24,704&lt;/b&gt;&lt;br&gt;BatchNorm ×3: 2×(32+64+128) = &lt;b&gt;448&lt;/b&gt;&lt;br&gt;Linear(128→64): 128×64+64 = &lt;b&gt;8,256&lt;/b&gt;&lt;br&gt;Linear(64→5): 64×5+5 = &lt;b&gt;325&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;TOTAL: 44,229 parámetros&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;align=center;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="2310" y="175" width="300" height="250" as="geometry"/>
+                </mxCell>
+                <mxCell id="50" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#9c27b0;opacity=30;" parent="1" vertex="1">
+                    <mxGeometry x="87.5" y="480" width="3100" height="450" as="geometry"/>
+                </mxCell>
+                <mxCell id="51" value="&lt;b&gt;&lt;font style=&quot;font-size:14px;&quot;&gt;B. Pipeline Completo de la CNN — Forward Pass (Inferencia en tiempo real)&lt;/font&gt;&lt;/b&gt;" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontColor=#6a1b9a;fontSize=13;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="500" width="1200" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="52" value="&lt;b&gt;INPUT&lt;/b&gt;&lt;br&gt;&lt;br&gt;Latido ECG&lt;br&gt;segmentado y&lt;br&gt;normalizado&lt;br&gt;&lt;br&gt;Tensor:&lt;br&gt;&lt;b&gt;(batch, 1, 71)&lt;/b&gt;&lt;br&gt;&lt;br&gt;71 muestras:&lt;br&gt;35 antes del&lt;br&gt;pico R + pico R&lt;br&gt;+ 36 después" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#23445d;fontStyle=1;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="550" width="130" height="210" as="geometry"/>
+                </mxCell>
+                <mxCell id="53" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;rounded=0;" parent="1" source="52" target="60" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="60" value="&lt;b&gt;BLOQUE 1&lt;/b&gt;" style="swimlane;startSize=28;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=12;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="332" y="540" width="240" height="290" as="geometry"/>
+                </mxCell>
+                <mxCell id="61" value="&lt;b&gt;Conv1d&lt;/b&gt;&lt;br&gt;in_ch=1 → out_ch=32&lt;br&gt;kernel_size=5, pad=2&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(batch, 32, 71)&lt;br&gt;32 filtros distintos&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;" parent="60" vertex="1">
+                    <mxGeometry x="15" y="38" width="210" height="75" as="geometry"/>
+                </mxCell>
+                <mxCell id="62" value="&lt;b&gt;BatchNorm1d(32) + ReLU&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Normaliza y activa&lt;br&gt;solo valores positivos&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" parent="60" vertex="1">
+                    <mxGeometry x="15" y="123" width="210" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="63" value="&lt;b&gt;MaxPool1d(2)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;71 → 35 muestras&lt;br&gt;Toma el máximo de cada par&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="60" vertex="1">
+                    <mxGeometry x="15" y="188" width="210" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="64" value="(batch, 32, 35)" style="text;html=1;align=center;strokeColor=#d79b00;fillColor=#fff2cc;rounded=0;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="576" y="620" width="115" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="65" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;rounded=0;" parent="1" source="60" target="70" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="70" value="&lt;b&gt;BLOQUE 2&lt;/b&gt;" style="swimlane;startSize=28;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=12;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="710" y="520" width="240" height="290" as="geometry"/>
+                </mxCell>
+                <mxCell id="71" value="&lt;b&gt;Conv1d&lt;/b&gt;&lt;br&gt;in_ch=32 → out_ch=64&lt;br&gt;kernel_size=5, pad=2&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(batch, 64, 35)&lt;br&gt;Combina patrones del Block 1&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;" parent="70" vertex="1">
+                    <mxGeometry x="15" y="38" width="210" height="75" as="geometry"/>
+                </mxCell>
+                <mxCell id="72" value="&lt;b&gt;BatchNorm1d(64) + ReLU&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Detecta patrones más complejos&lt;br&gt;combinando los 32 anteriores&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" parent="70" vertex="1">
+                    <mxGeometry x="15" y="123" width="210" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="73" value="&lt;b&gt;MaxPool1d(2)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;35 → 17 muestras&lt;br&gt;Toma el máximo de cada par&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="70" vertex="1">
+                    <mxGeometry x="15" y="188" width="210" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="74" value="(batch, 64, 17)" style="text;html=1;align=center;strokeColor=#d79b00;fillColor=#fff2cc;rounded=0;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="958" y="640" width="115" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="75" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;rounded=0;" parent="1" source="70" target="80" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1010" y="690"/>
+                            <mxPoint x="1010" y="690"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="80" value="&lt;b&gt;BLOQUE 3&lt;/b&gt;" style="swimlane;startSize=28;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=12;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="1090" y="520" width="240" height="290" as="geometry"/>
+                </mxCell>
+                <mxCell id="81" value="&lt;b&gt;Conv1d&lt;/b&gt;&lt;br&gt;in_ch=64 → out_ch=128&lt;br&gt;kernel_size=3, pad=1&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;(batch, 128, 17)&lt;br&gt;Representaciones de alto nivel&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=10;" parent="80" vertex="1">
+                    <mxGeometry x="15" y="38" width="210" height="75" as="geometry"/>
+                </mxCell>
+                <mxCell id="82" value="&lt;b&gt;BatchNorm1d(128) + ReLU&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Morfología completa del latido:&lt;br&gt;forma QRS, segmento ST, onda T&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" parent="80" vertex="1">
+                    <mxGeometry x="15" y="123" width="210" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="83" value="&lt;b&gt;MaxPool1d(2)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;17 → 8 muestras&lt;br&gt;Toma el máximo de cada par&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="80" vertex="1">
+                    <mxGeometry x="15" y="188" width="210" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="84" value="(batch, 128, 8)" style="text;html=1;align=center;strokeColor=#d79b00;fillColor=#fff2cc;rounded=0;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="1338" y="640" width="115" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="85" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;rounded=0;" parent="1" source="80" target="90" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="90" value="&lt;b&gt;AdaptiveAvgPool1d(1)&lt;/b&gt;&lt;br&gt;&lt;br&gt;8 muestras → 1&lt;br&gt;Promedia todo el canal&lt;br&gt;&lt;br&gt;&lt;b&gt;(batch, 128, 1)&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Un valor por canal&lt;br&gt;independiente del tamaño&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1360" y="575" width="175" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="91" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;rounded=0;" parent="1" source="90" target="95" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="95" value="&lt;b&gt;Flatten&lt;/b&gt;&lt;br&gt;&lt;br&gt;(batch,128,1)&lt;br&gt;→&lt;br&gt;&lt;b&gt;(batch, 128)&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Vector 1D listo&lt;br&gt;para capas densas&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1565" y="580" width="145" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="96" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;rounded=0;" parent="1" source="95" target="100" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="100" value="&lt;b&gt;CLASIFICADOR (self.classifier)&lt;/b&gt;" style="swimlane;startSize=28;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=12;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="1740" y="520" width="260" height="290" as="geometry"/>
+                </mxCell>
+                <mxCell id="101" value="&lt;b&gt;Linear(128 → 64)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;8,192 pesos + 64 bias = 8,256&lt;br&gt;Comprime la representación&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" parent="100" vertex="1">
+                    <mxGeometry x="15" y="38" width="230" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="102" value="&lt;b&gt;ReLU&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;f(x) = max(0, x)&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" parent="100" vertex="1">
+                    <mxGeometry x="15" y="103" width="230" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="103" value="&lt;b&gt;Dropout(p=0.5)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Desactiva 50% de neuronas al azar&lt;br&gt;Solo activo en entrenamiento&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" parent="100" vertex="1">
+                    <mxGeometry x="15" y="153" width="230" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="104" value="&lt;b&gt;Linear(64 → 5)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;320 pesos + 5 bias = 325&lt;br&gt;5 logits (uno por clase AAMI)&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" parent="100" vertex="1">
+                    <mxGeometry x="15" y="213" width="230" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="105" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;rounded=0;" parent="1" source="100" target="110" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="110" value="&lt;b&gt;Softmax&lt;/b&gt;&lt;br&gt;predict_proba()&lt;br&gt;&lt;br&gt;5 probabilidades&lt;br&gt;&amp;Sigma; = 1.0&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;Convierte logits&lt;br&gt;en probabilidades&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="2030" y="575" width="145" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="111" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;rounded=0;" parent="1" source="110" target="120" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="120" value="&lt;b&gt;CLASES AAMI&lt;/b&gt;" style="swimlane;startSize=28;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontSize=12;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="2205" y="520" width="210" height="290" as="geometry"/>
+                </mxCell>
+                <mxCell id="121" value="🔵 N — Normal (79.3%)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2196F3;fontColor=#ffffff;strokeColor=#1565c0;fontSize=11;" parent="120" vertex="1">
+                    <mxGeometry x="10" y="38" width="190" height="38" as="geometry"/>
+                </mxCell>
+                <mxCell id="122" value="🟠 S — Supraventricular (3.2%)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FF9800;fontColor=#000000;strokeColor=#e65100;fontSize=11;" parent="120" vertex="1">
+                    <mxGeometry x="10" y="84" width="190" height="38" as="geometry"/>
+                </mxCell>
+                <mxCell id="123" value="🔴 V — Ventricular (7.6%)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F44336;fontColor=#ffffff;strokeColor=#b71c1c;fontSize=11;" parent="120" vertex="1">
+                    <mxGeometry x="10" y="130" width="190" height="38" as="geometry"/>
+                </mxCell>
+                <mxCell id="124" value="🟣 F — Fusión (0.8%)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#9C27B0;fontColor=#ffffff;strokeColor=#4a148c;fontSize=11;" parent="120" vertex="1">
+                    <mxGeometry x="10" y="176" width="190" height="38" as="geometry"/>
+                </mxCell>
+                <mxCell id="125" value="⚫ Q — Desconocido (9.0%)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#607D8B;fontColor=#ffffff;strokeColor=#263238;fontSize=11;" parent="120" vertex="1">
+                    <mxGeometry x="10" y="222" width="190" height="38" as="geometry"/>
+                </mxCell>
+                <mxCell id="126" value="&lt;b&gt;Evolución del tensor a lo largo del pipeline:&lt;/b&gt;" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontSize=11;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="848" width="500" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="127" value="Input&lt;br&gt;(1×71)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="878" width="85" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="128" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="258" y="886" width="25" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="129" value="Block1&lt;br&gt;(32×35)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="286" y="878" width="90" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="130" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="379" y="886" width="25" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="131" value="Block2&lt;br&gt;(64×17)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="407" y="878" width="90" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="132" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="500" y="886" width="25" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="133" value="Block3&lt;br&gt;(128×8)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="528" y="878" width="90" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="134" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="621" y="886" width="25" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="135" value="AvgPool&lt;br&gt;(128×1)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="649" y="878" width="85" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="136" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="737" y="886" width="25" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="137" value="Flatten&lt;br&gt;(128)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="765" y="878" width="80" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="138" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="848" y="886" width="25" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="139" value="Linear1&lt;br&gt;(64)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="876" y="878" width="75" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="140" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="954" y="886" width="25" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="141" value="Linear2&lt;br&gt;(5)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="982" y="878" width="70" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="142" value="▶" style="text;html=1;align=center;fontSize=14;strokeColor=none;fillColor=none;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="1055" y="886" width="25" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="143" value="Softmax&lt;br&gt;N/S/V/F/Q" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="1083" y="878" width="90" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="200" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#4caf50;opacity=40;" parent="1" vertex="1">
+                    <mxGeometry x="150" y="960" width="3100" height="650" as="geometry"/>
+                </mxCell>
+                <mxCell id="201" value="&lt;b&gt;&lt;font style=&quot;font-size:14px;&quot;&gt;C. Módulo de Reentrenamiento Continuo — Diferencia entre Modelo Base y Modelo Adaptativo&lt;/font&gt;&lt;/b&gt;" style="text;html=1;align=left;strokeColor=none;fillColor=none;fontColor=#1b5e20;fontSize=13;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="205" y="972" width="2000" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="202" value="&lt;b&gt;ecg_cnn_base.pth&lt;/b&gt;&lt;br&gt;&lt;i&gt;Modelo Base (Estático)&lt;/i&gt;&lt;br&gt;&lt;br&gt;Entrenado con:&lt;br&gt;• 94,627 latidos totales&lt;br&gt;• 30 épocas completas&lt;br&gt;• lr = 1e-3 (Adam)&lt;br&gt;• Batch = 64&lt;br&gt;• Weighted NLLLoss&lt;br&gt;&lt;br&gt;Resultado:&lt;br&gt;&lt;b&gt;Accuracy: 93.54%&lt;/b&gt;&lt;br&gt;&lt;b&gt;F1 Macro: 0.7849&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;NO se modifica con nuevos datos&lt;br&gt;Sirve como punto de referencia&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#23445d;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="1020" width="210" height="270" as="geometry"/>
+                </mxCell>
+                <mxCell id="210" value="&lt;b&gt;Replay Buffer&lt;/b&gt;&lt;br&gt;replay_buffer.npz&lt;br&gt;&lt;br&gt;• Capacidad: 2,000 latidos&lt;br&gt;• Almacena muestras pasadas&lt;br&gt;• Selección aleatoria (sample)&lt;br&gt;• Persistente entre sesiones&lt;br&gt;&lt;br&gt;&lt;b&gt;Propósito:&lt;/b&gt;&lt;br&gt;Evitar Catastrophic Forgetting.&lt;br&gt;Al entrenar con pacientes nuevos,&lt;br&gt;el modelo no olvida los anteriores&lt;br&gt;porque sigue viendo muestras&lt;br&gt;del buffer en cada sesión." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="530" y="1020" width="220" height="270" as="geometry"/>
+                </mxCell>
+                <mxCell id="211" value="&lt;b&gt;Nuevos datos de paciente&lt;/b&gt;&lt;br&gt;(Registro MIT-BIH seleccionado)&lt;br&gt;&lt;br&gt;• Segmentación de latidos&lt;br&gt;• Etiquetas reales del archivo .atr&lt;br&gt;• Mapeo AAMI aplicado&lt;br&gt;&lt;br&gt;Ej: Registro 208&lt;br&gt;(N, V, S — &gt;2,000 latidos)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="530" y="1330" width="220" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="212" value="&lt;b&gt;Mezcla de Datos&lt;/b&gt;&lt;br&gt;50% Buffer + 50% Nuevos&lt;br&gt;&lt;br&gt;np.random.permutation()&lt;br&gt;&lt;br&gt;Garantiza que el modelo vea&lt;br&gt;datos de TODOS los pacientes&lt;br&gt;en cada sesión de entrenamiento.&lt;br&gt;&lt;br&gt;Evita sesgo hacia los últimos datos." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="880" y="1150" width="215" height="210" as="geometry"/>
+                </mxCell>
+                <mxCell id="213" value="Muestras del pasado" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#f9a825;strokeWidth=2;fontSize=9;rounded=0;" parent="1" source="210" target="212" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="214" value="Datos nuevos" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;fontSize=9;rounded=0;" parent="1" source="211" target="212" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="215" value="&lt;b&gt;incremental_train()&lt;/b&gt;&lt;br&gt;&lt;br&gt;• Optimizer: Adam&lt;br&gt;• lr = 1e-4 &lt;b&gt;(10x menor)&lt;/b&gt;&lt;br&gt;• Loss: CrossEntropyLoss&lt;br&gt;• Épocas por sesión: 5&lt;br&gt;• Batch: 64&lt;br&gt;&lt;br&gt;&lt;b&gt;Por qué lr más pequeño:&lt;/b&gt;&lt;br&gt;Cambios pequeños conservan&lt;br&gt;el conocimiento base.&lt;br&gt;Solo ajusta ligeramente los&lt;br&gt;pesos hacia los nuevos datos." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1230" y="1100" width="225" height="270" as="geometry"/>
+                </mxCell>
+                <mxCell id="216" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#333333;strokeWidth=2;rounded=0;" parent="1" source="212" target="215" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="217" value="Carga pesos&lt;br&gt;iniciales" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;fontSize=9;rounded=0;" parent="1" source="202" target="215" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="220" value="&lt;b&gt;ADAPT-ECG-RETRAINED.pth&lt;/b&gt;&lt;br&gt;&lt;i&gt;Modelo Adaptativo&lt;/i&gt;&lt;br&gt;&lt;br&gt;• Misma arquitectura CNN&lt;br&gt;• Pesos ACTUALIZADOS&lt;br&gt;• Se actualiza en cada sesión&lt;br&gt;&lt;br&gt;Resultado (Fase 3):&lt;br&gt;&lt;b&gt;Accuracy: 97.83%&lt;/b&gt;&lt;br&gt;&lt;b&gt;F1 Macro: 0.9071&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mejora vs Base:&lt;br&gt;&lt;b&gt;+4.29% accuracy&lt;/b&gt;&lt;br&gt;&lt;b&gt;+0.1222 F1 Macro&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;&quot;&gt;SÍ cambia con nuevos datos&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#1b5e20;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="1590" y="1020" width="220" height="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="221" value="Guarda pesos&lt;br&gt;actualizados" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=2;fontSize=9;rounded=0;" parent="1" source="215" target="220" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="222" value="&lt;b&gt;Actualiza Replay Buffer&lt;/b&gt;&lt;br&gt;&lt;br&gt;Agrega nuevos latidos al buffer.&lt;br&gt;Si supera 2,000 → elimina los más antiguos.&lt;br&gt;(Cola FIFO — primero en entrar, primero en salir)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1590" y="1420" width="320" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="223" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#f9a825;strokeWidth=2;rounded=0;" parent="1" source="220" target="222" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="224" value="&lt;b&gt;Próxima sesión&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#f9a825;strokeWidth=2;dashed=1;fontSize=10;rounded=0;" parent="1" source="222" target="210" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1750" y="1560"/>
+                            <mxPoint x="640" y="1560"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="225" value="&lt;b&gt;retrain_history.json&lt;/b&gt;&lt;br&gt;&lt;br&gt;Registra por sesión:&lt;br&gt;• Accuracy antes / después&lt;br&gt;• F1-Score antes / después&lt;br&gt;• Latidos procesados&lt;br&gt;• Loss por época&lt;br&gt;• Fecha y hora" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="1940" y="1100" width="215" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="226" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#3949ab;strokeWidth=2;rounded=0;" parent="1" source="220" target="225" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="230" value="&lt;b&gt;¿Cuál es la diferencia entre Modelo Base y Modelo Adaptativo?&lt;/b&gt;&lt;br&gt;&lt;br&gt;• &lt;b&gt;Misma arquitectura:&lt;/b&gt; ECG_CNN exacta con 44,229 parámetros&lt;br&gt;• &lt;b&gt;La diferencia son los VALORES de los pesos:&lt;/b&gt; w[k] en Conv1d y matrices W en Linear&lt;br&gt;• El modelo base fue entrenado una sola vez con todos los datos (30 épocas, lr=1e-3)&lt;br&gt;• El modelo adaptativo refina sus pesos sesión a sesión (5 épocas c/u, lr=1e-4)&lt;br&gt;• El adaptativo reconoce mejor patrones de nuevos pacientes SIN olvidar los anteriores" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1565c0;align=left;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="2200" y="1020" width="500" height="155" as="geometry"/>
+                </mxCell>
+                <mxCell id="231" value="&lt;b&gt;Comparativa Final — Fase 4 (75,702 latidos, lotes 1-4)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Modelo Estático:   Accuracy = 88.72%  |  F1 Macro = 0.7381&lt;br&gt;Modelo Adaptativo: Accuracy = 97.41%  |  F1 Macro = 0.8954&lt;br&gt;&lt;br&gt;&lt;b&gt;Mejora: +8.69% accuracy &amp;nbsp;|&amp;nbsp; +0.1573 F1 Macro&lt;/b&gt;&lt;br&gt;McNemar: χ² = 5342, p ≈ 0 → Diferencia estadísticamente significativa" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#1b5e20;align=center;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="2200" y="1215" width="490" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="232" value="&lt;b&gt;Notas técnicas importantes:&lt;/b&gt;&lt;br&gt;• BEAT_LEN = 71 (35 antes + pico R + 36 después)&lt;br&gt;• La capa clasificadora se llama self.classifier (no self.fc)&lt;br&gt;• Keys de los pesos: classifier.1 (Linear 128→64), classifier.4 (Linear 64→5)&lt;br&gt;• Registro 124 solo tiene 88 latidos (marcapaso) — no usar para demo&lt;br&gt;• Mejores registros para demo: 100, 200, 208 (&amp;gt;2,000 latidos, variedad de clases)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#c62828;align=center;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="2200" y="1400" width="500" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="240" value="&lt;b&gt;LEYENDA DE COLORES&lt;/b&gt;" style="swimlane;startSize=28;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontSize=12;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="150" y="1640" width="3100" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="241" value="Conv1d" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=11;" parent="240" vertex="1">
+                    <mxGeometry x="10" y="38" width="110" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="242" value="BatchNorm + ReLU" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="240" vertex="1">
+                    <mxGeometry x="130" y="38" width="140" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="243" value="MaxPool / AvgPool" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="240" vertex="1">
+                    <mxGeometry x="280" y="38" width="145" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="244" value="Capas Clasificadoras" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" parent="240" vertex="1">
+                    <mxGeometry x="435" y="38" width="155" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="245" value="Flatten / Softmax" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" parent="240" vertex="1">
+                    <mxGeometry x="600" y="38" width="140" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="246" value="Replay Buffer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=11;" parent="240" vertex="1">
+                    <mxGeometry x="750" y="38" width="125" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="247" value="Modelo Adaptativo" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#1b5e20;fontSize=11;" parent="240" vertex="1">
+                    <mxGeometry x="885" y="38" width="145" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="248" value="Input / Tensor" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" parent="240" vertex="1">
+                    <mxGeometry x="1040" y="38" width="130" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="249" value="Historial / Métricas" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" parent="240" vertex="1">
+                    <mxGeometry x="1180" y="38" width="145" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="250" value="Mezcla de Datos" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" parent="240" vertex="1">
+                    <mxGeometry x="1335" y="38" width="130" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="251" value="incremental_train()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" parent="240" vertex="1">
+                    <mxGeometry x="1475" y="38" width="150" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="252" value="&lt;i&gt;Elias Bejarano Lozada #20213057 — Residencia Profesional — Ingeniería Biomédica — Instituto Tecnológico de Tijuana (ITT) — 2026&lt;/i&gt;" style="text;html=1;align=right;fontSize=10;strokeColor=none;fillColor=none;rounded=0;" parent="240" vertex="1">
+                    <mxGeometry x="1800" y="48" width="1290" height="25" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

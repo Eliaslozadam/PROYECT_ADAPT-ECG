@@ -1,14 +1,14 @@
 <mxfile host="65bd71144e">
     <diagram id="JEH4aOsjlcwtQ0HiJNP0" name="Page-1">
-        <mxGraphModel dx="1626" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" background="light-dark(#d2cbcb, #ededed)" math="0" shadow="1">
+        <mxGraphModel dx="1626" dy="779" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" background="light-dark(#d2cbcb, #ededed)" math="0" shadow="1">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="title1" value="ADAPT-ECG · Flujo CNN Base (Inferencia)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#1a73e8;" parent="1" vertex="1">
-                    <mxGeometry x="400" y="20" width="600" height="40" as="geometry"/>
+                <mxCell id="title1" value="ADAPT-ECG · Flujo CNN Base&amp;nbsp;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#1a73e8;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="40" width="600" height="40" as="geometry"/>
                 </mxCell>
                 <mxCell id="s1" value="ENTRADA DE DATOS" style="swimlane;fontStyle=1;fontSize=13;fillColor=#dae8fc;strokeColor=#1a73e8;fontColor=#1a1a1a;startSize=35;rounded=1;arcSize=5;" parent="1" vertex="1">
-                    <mxGeometry x="60" y="80" width="1520" height="110" as="geometry"/>
+                    <mxGeometry x="120" y="80" width="940" height="110" as="geometry"/>
                 </mxCell>
                 <mxCell id="A1" value="MIT-BIH Database&lt;br&gt;mit-bih-arrhythmia-database-1.0.0/&lt;br&gt;.hea  ·  .dat  ·  .atr" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a73e8;fontColor=#ffffff;strokeColor=#0d47a1;fontSize=12;arcSize=10;" parent="s1" vertex="1">
                     <mxGeometry x="180" y="40" width="260" height="55" as="geometry"/>
@@ -17,7 +17,7 @@
                     <mxGeometry x="560" y="40" width="260" height="55" as="geometry"/>
                 </mxCell>
                 <mxCell id="s2" value=" PREPROCESAMIENTO  ·  src/ui/app.py" style="swimlane;fontStyle=1;fontSize=13;fillColor=#d5e8d4;strokeColor=#27ae60;fontColor=#1a1a1a;startSize=35;rounded=1;arcSize=5;" parent="1" vertex="1">
-                    <mxGeometry x="60" y="230" width="1520" height="110" as="geometry"/>
+                    <mxGeometry x="60" y="230" width="1100" height="110" as="geometry"/>
                 </mxCell>
                 <mxCell id="B1" value="Lectura de señal&lt;br&gt;wfdb.rdrecord()&lt;br&gt;wfdb.rdann()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#27ae60;fontColor=#ffffff;strokeColor=#1a7a40;fontSize=12;arcSize=10;" parent="s2" vertex="1">
                     <mxGeometry x="60" y="40" width="200" height="55" as="geometry"/>

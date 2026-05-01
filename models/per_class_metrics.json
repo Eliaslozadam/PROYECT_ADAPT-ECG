@@ -1,0 +1,86 @@
+{
+  "base": [
+    {
+      "clase": "N",
+      "sensibilidad": 0.4494,
+      "especificidad": 0.9823,
+      "precision": 0.9898,
+      "f1": 0.6181,
+      "soporte": 75048
+    },
+    {
+      "clase": "S",
+      "sensibilidad": 0.847,
+      "especificidad": 0.6599,
+      "precision": 0.076,
+      "f1": 0.1395,
+      "soporte": 3026
+    },
+    {
+      "clase": "V",
+      "sensibilidad": 0.848,
+      "especificidad": 0.9934,
+      "precision": 0.9143,
+      "f1": 0.8799,
+      "soporte": 7236
+    },
+    {
+      "clase": "F",
+      "sensibilidad": 0.7858,
+      "especificidad": 0.9843,
+      "precision": 0.2998,
+      "f1": 0.434,
+      "soporte": 803
+    },
+    {
+      "clase": "Q",
+      "sensibilidad": 0.9968,
+      "especificidad": 0.8892,
+      "precision": 0.4708,
+      "f1": 0.6396,
+      "soporte": 8515
+    }
+  ],
+  "adaptativo": [
+    {
+      "clase": "N",
+      "sensibilidad": 0.2658,
+      "especificidad": 0.9736,
+      "precision": 0.9748,
+      "f1": 0.4177,
+      "soporte": 75048
+    },
+    {
+      "clase": "S",
+      "sensibilidad": 0.8222,
+      "especificidad": 0.5166,
+      "precision": 0.0532,
+      "f1": 0.0999,
+      "soporte": 3026
+    },
+    {
+      "clase": "V",
+      "sensibilidad": 0.9623,
+      "especificidad": 0.8948,
+      "precision": 0.4309,
+      "f1": 0.5953,
+      "soporte": 7236
+    },
+    {
+      "clase": "F",
+      "sensibilidad": 0.0162,
+      "especificidad": 0.9489,
+      "precision": 0.0027,
+      "f1": 0.0046,
+      "soporte": 803
+    },
+    {
+      "clase": "Q",
+      "sensibilidad": 0.6949,
+      "especificidad": 0.9941,
+      "precision": 0.9209,
+      "f1": 0.7921,
+      "soporte": 8515
+    }
+  ]
+}

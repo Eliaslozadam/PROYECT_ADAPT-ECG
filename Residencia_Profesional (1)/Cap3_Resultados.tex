@@ -5,81 +5,318 @@
 
 \chapter{Desarrollo y resultados}
 
-El presente capítulo describe el proceso de desarrollo del sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares, estructurado en cuatro fases secuenciales. Se detallan los materiales, herramientas y métodos empleados en cada fase, seguidos de los resultados cuantitativos obtenidos y su análisis.
+El presente capítulo describe el proceso completo de desarrollo del sistema inteligente con reentrenamiento continuo para la detección adaptativa de patologías cardiovasculares. El desarrollo se estructuró en cuatro fases secuenciales: adquisición y preprocesamiento de datos (Fase 1), diseño y entrenamiento del modelo neuronal base (Fase 2), implementación del módulo de reentrenamiento continuo (Fase 3) y evaluación comparativa formal (Fase 4). Para cada fase se detallan los materiales, herramientas, decisiones de diseño y métodos empleados, seguidos, en la sección de resultados, de los valores cuantitativos obtenidos.
 
-\section{Materiales y métodos}
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Desarrollo}
+% ═══════════════════════════════════════════════════════════════════════════════
 
-\subsection{Entorno de desarrollo}
+\subsection{Entorno de desarrollo y herramientas}
 
-El desarrollo del proyecto se realizó en dos entornos complementarios. El preprocesamiento de datos, el entrenamiento del modelo base y el reentrenamiento continuo se ejecutaron en Google Colaboratory con aceleración por GPU NVIDIA Tesla T4 (16 GB VRAM), accesible de forma gratuita a través de Google Drive. La evaluación comparativa formal, el análisis estadístico y la interfaz de usuario se ejecutaron localmente en un equipo con Windows 11, procesador Intel Core i7, 8 GB RAM y Python 3.12 en un entorno virtual. Las bibliotecas principales utilizadas fueron PyTorch 2.x, scikit-learn, NumPy, SciPy, Matplotlib y Streamlit. La gestión del código fuente se realizó mediante Git y GitHub.
+El proyecto se desarrolló en dos entornos computacionales complementarios. Las tareas de cómputo intensivo — preprocesamiento masivo de señales, entrenamiento del modelo base y reentrenamiento continuo — se ejecutaron en \textbf{Google Colaboratory} con aceleración por GPU NVIDIA Tesla T4 (16\,GB VRAM), accesible de forma gratuita a través de Google Drive. Esta plataforma permitió reducir el tiempo de entrenamiento de horas a minutos en comparación con ejecución local en CPU.
 
-\subsection{Conjunto de datos: MIT-BIH Arrhythmia Database}
+Las tareas de análisis estadístico, integración de módulos, evaluación comparativa y desarrollo de la interfaz de usuario se realizaron localmente en un equipo con sistema operativo Windows 11, procesador Intel Core i7, 8\,GB de RAM y almacenamiento SSD, utilizando Python 3.12 dentro de un entorno virtual aislado (\textit{venv}). La gestión del código fuente se realizó mediante Git con repositorio remoto en GitHub, lo que permitió mantener un historial de versiones a lo largo de las cuatro fases del proyecto.
 
-Se utilizó la MIT-BIH Arrhythmia Database \cite{Moody2001}, disponible públicamente en PhysioNet, descargada mediante la biblioteca \texttt{wfdb} de Python. La base de datos comprende 48 registros de ECG de dos canales con una frecuencia de muestreo de 360 Hz y una duración de aproximadamente 30 minutos por registro. Las etiquetas de los latidos fueron agrupadas en cinco clases según el estándar AAMI EC57 \cite{AAMI2012}: N (normal), S (supraventricular ectópico), V (ventricular ectópico), F (fusión) y Q (no clasificable). El conjunto de datos resultante tras el preprocesamiento comprende 94,627 latidos.
-
-\subsection{Preprocesamiento de señales ECG}
-
-El protocolo de preprocesamiento aplicado a cada registro incluye los siguientes pasos:
-
-\begin{enumerate}
-\item \textbf{Filtrado pasa-banda}: Se aplicó un filtro Butterworth de orden 4 con frecuencias de corte de 0.5 Hz (paso alto) y 40 Hz (paso bajo), implementado con la función \texttt{sosfilt} de SciPy con filtrado bidireccional para eliminar el desfase de fase.
-
-\item \textbf{Detección de picos R}: Se empleó el detector de máximos locales de SciPy (\texttt{find\_peaks}) con umbral adaptativo y distancia mínima de separación equivalente a 300 latidos por minuto.
-
-\item \textbf{Segmentación de latidos}: Se extrajo una ventana de 71 muestras centrada en cada pico R detectado (35 muestras anteriores y 36 posteriores), equivalente a aproximadamente 197 ms a 360 Hz.
-
-\item \textbf{Normalización \textit{z-score}}: Cada ventana de 71 muestras se normalizó individualmente a media cero y desviación estándar unitaria, eliminando las variaciones de amplitud entre latidos.
-
-\item \textbf{Asignación de etiquetas}: Las etiquetas originales de cada pico R fueron mapeadas a las cinco clases AAMI EC57 mediante un diccionario de correspondencia.
-\end{enumerate}
-
-Los latidos cuya ventana de extracción excedía los límites del registro, así como aquellos con desviación estándar igual a cero (señal plana), fueron descartados. El dataset resultante fue guardado en formato NumPy (\texttt{X.npy} con dimensiones $94{,}627 \times 71$ y \texttt{y.npy} con dimensiones $94{,}627$).
-
-\subsection{Arquitectura del modelo CNN}
-
-Se diseñó una red neuronal convolucional 1D denominada ECG\_CNN, con la arquitectura descrita en la Tabla \ref{T_arquitectura}.
+Las principales bibliotecas y frameworks utilizados se listan en la Tabla~\ref{T_herramientas}.
 
 \begin{table}[h]
-\caption{Arquitectura de la red neuronal convolucional ECG\_CNN empleada en el proyecto.}
-\label{T_arquitectura}
+\caption{Bibliotecas y frameworks principales utilizados en el desarrollo del sistema.}
+\label{T_herramientas}
 \begin{center}
-\begin{tabular}{cccc}
+\begin{tabular}{lll}
 \hline
-\textbf{Bloque} & \textbf{Capa} & \textbf{Parámetros} & \textbf{Salida} \\ \hline
-Entrada & --- & --- & (1, 71) \\
-Bloque 1 & Conv1d + BN + ReLU + MaxPool & 32 filtros, kernel=5 & (32, 35) \\
-Bloque 2 & Conv1d + BN + ReLU + MaxPool & 64 filtros, kernel=5 & (64, 15) \\
-Bloque 3 & Conv1d + BN + ReLU + MaxPool & 128 filtros, kernel=3 & (128, 6) \\
-Pooling & AdaptiveAvgPool1d & salida=1 & (128, 1) \\
-Flatten & --- & --- & 128 \\
-FC1 & Linear + ReLU + Dropout(0.3) & 128$\to$64 & 64 \\
-Salida & Linear + LogSoftmax & 64$\to$5 & 5 \\
-\hline
-\multicolumn{2}{c}{\textbf{Total de parámetros entrenables}} & \multicolumn{2}{c}{44,229} \\
+\textbf{Biblioteca} & \textbf{Versión} & \textbf{Uso en el proyecto} \\ \hline
+PyTorch          & 2.x   & Definición, entrenamiento e inferencia del modelo neuronal \\
+scikit-learn     & 1.x   & Partición estratificada, métricas de evaluación \\
+NumPy            & 1.x   & Manipulación de arreglos y operaciones matriciales \\
+SciPy            & 1.x   & Filtrado de señales ECG, prueba estadística de McNemar \\
+wfdb             & 4.x   & Descarga y lectura de registros MIT-BIH de PhysioNet \\
+Streamlit        & 1.x   & Desarrollo de la interfaz de usuario interactiva \\
+Plotly           & 5.x   & Visualizaciones interactivas de señales y métricas \\
+Matplotlib / Seaborn & -- & Figuras estáticas para el informe \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-\subsection{Entrenamiento base del modelo}
+\subsection{Conjunto de datos: MIT-BIH Arrhythmia Database}
 
-El modelo ECG\_CNN fue entrenado sobre el 80\% del dataset (75,702 latidos), reservando el 20\% restante (18,925 latidos) como conjunto de validación. El proceso de entrenamiento se configuró con los siguientes hiperparámetros: 30 épocas, tamaño de \textit{minibatch} de 64 latidos, optimizador Adam con tasa de aprendizaje $\alpha = 10^{-3}$ y decaimiento de peso $\lambda = 10^{-4}$, y función de pérdida NLLLoss con pesos de clase ponderados inversamente proporcionales a la frecuencia de cada clase en el conjunto de entrenamiento. El modelo entrenado fue guardado en el archivo \texttt{models/ecg\_cnn\_base.pth}.
+\subsubsection{Descripción de la base de datos}
 
-\subsection{Módulo de reentrenamiento continuo}
+Se utilizó la MIT-BIH Arrhythmia Database \cite{Moody2001}, disponible públicamente en PhysioNet \cite{Goldberger2000}, descargada de forma programática mediante la biblioteca \texttt{wfdb} de Python. Esta base de datos es el estándar de referencia en investigación de detección automática de arritmias y está compuesta por 48 registros de ECG ambulatorio de dos canales (derivación MLII y una derivación precordial) obtenidos de 47 pacientes distintos entre 1975 y 1979 en el Boston's Beth Israel Hospital. Cada registro tiene una duración de aproximadamente 30 minutos y fue digitalizado a una frecuencia de muestreo de 360\,Hz con resolución de 11 bits sobre un rango de ±5\,mV. Las anotaciones de latidos fueron realizadas de forma independiente por dos cardiólogos expertos.
 
-El módulo de reentrenamiento continuo implementa la técnica de Replay Buffer para mitigar el \textit{Catastrophic Forgetting}. El dataset de 94,627 latidos fue dividido en 5 lotes secuenciales de aproximadamente 18,925 latidos cada uno, simulando la llegada progresiva de nuevos datos de pacientes. Esta división temporal es la metodología estándar en investigación de \textit{Continual Learning} para evaluar el rendimiento de los modelos adaptativos.
+\subsubsection{Mapeo de etiquetas al estándar AAMI EC57}
 
-El Replay Buffer tiene una capacidad máxima de 2,000 latidos, con política de reemplazo aleatorio cuando está lleno. En cada lote de reentrenamiento se mezclan los nuevos datos con el 50\% de muestras extraídas aleatoriamente del buffer. El reentrenamiento se realiza durante 5 épocas por lote con tasa de aprendizaje reducida $\alpha = 10^{-4}$, preservando las representaciones aprendidas durante el entrenamiento base. El modelo adaptativo resultante fue guardado en \texttt{models/ADAPT-ECG-RETRAINED.pth}.
+Las etiquetas originales de la base de datos comprenden más de 15 tipos de latidos distintos. Siguiendo el estándar internacional AAMI EC57 \cite{AAMI2012} para evaluación de detectores de arritmias, las etiquetas originales fueron agrupadas en cinco superclases, tal como se describe en la Tabla~\ref{T_aami}.
 
-\subsection{Evaluación comparativa}
+\begin{table}[h]
+\caption{Mapeo de etiquetas originales MIT-BIH a las cinco clases del estándar AAMI EC57.}
+\label{T_aami}
+\begin{center}
+\begin{tabular}{clll}
+\hline
+\textbf{Clase} & \textbf{Descripción} & \textbf{Etiquetas MIT-BIH originales} & \textbf{Relevancia clínica} \\ \hline
+N & Normal y de unión         & N, ., j, n, e, a, A, J, S en algunos mapeos & Ritmo sinusal y unión AV \\
+S & Supraventricular ectópico & A, a, J, S, e, j                             & Flutter, taquicardia supraventricular \\
+V & Ventricular ectópico      & V, E                                         & Taquicardia ventricular, extrasístoles \\
+F & Fusión ventricular/normal & F                                            & Fusión QRS — latidos híbridos \\
+Q & No clasificable           & Q, ?, /, f, !                                & Artefactos, marcapaso, ruido \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
 
-La evaluación comparativa formal se realizó sobre el conjunto de validación completo (lotes 1 a 4, 75,702 latidos), comparando el modelo estático (sin reentrenamiento) contra el modelo adaptativo (con Replay Buffer). Las métricas calculadas fueron: exactitud (\textit{Accuracy}), F1-Score macro, F1-Score ponderado, precisión y sensibilidad por clase. Adicionalmente, se aplicó la prueba estadística de McNemar para verificar la significancia estadística de las diferencias observadas.
+Las clases S y F son clínicamente relevantes pero minoritarias en la base de datos (3.2\% y 0.8\% respectivamente), lo que impone un desafío significativo de desbalance de clases que fue abordado mediante técnicas específicas durante el entrenamiento.
+
+% ───────────────────────────────────────────────────────────────────────────────
+\subsection{Fase 1: Adquisición y preprocesamiento de señales ECG}
+% ───────────────────────────────────────────────────────────────────────────────
+
+\subsubsection{Descarga de registros}
+
+Los 48 registros de la MIT-BIH Arrhythmia Database fueron descargados automáticamente desde el servidor de PhysioNet mediante la función \texttt{wfdb.dl\_database}. Cada registro consta de tres archivos: el archivo binario de señal (\texttt{.dat}), el encabezado con metadatos del registro (\texttt{.hea}) y el archivo de anotaciones de latidos (\texttt{.atr}).
+
+\subsubsection{Diseño del protocolo de preprocesamiento}
+
+Una de las decisiones de diseño más importantes del proyecto fue la elección de la longitud de la ventana de segmentación. En trabajos previos con esta misma base de datos, la longitud estándar empleada suele ser de 71 a 90 muestras (alrededor de 200\,ms). Sin embargo, la onda P del ECG — cuya morfología es determinante para distinguir los latidos supraventriculares ectópicos (clase S) de los latidos normales — aparece típicamente entre 100 y 120\,ms antes del pico R. Con una ventana de 71 muestras (35 muestras antes del pico a 360\,Hz equivalen a 97\,ms), la onda P quedaba parcialmente fuera de la ventana de análisis, lo que limitaba estructuralmente la capacidad del modelo para aprender las características morfológicas de la clase S.
+
+Se diseñó un protocolo de preprocesamiento con ventana ampliada a \textbf{128 muestras}, con 50 muestras anteriores al pico R (139\,ms) y 78 posteriores (217\,ms), capturando así la onda P de forma completa. Esta ventana de aproximadamente 355\,ms también captura el complejo QRS y la onda T completa para la mayoría de frecuencias cardíacas clínicas (40–150 lpm). El pipeline completo se detalla a continuación.
+
+\begin{enumerate}
+
+\item \textbf{Filtrado pasa-banda}: Se aplicó un filtro Butterworth de cuarto orden con frecuencias de corte de $f_\text{low} = 0.5$\,Hz y $f_\text{high} = 40$\,Hz. El límite inferior elimina la deriva de línea base (\textit{baseline wander}) producida por la respiración y el movimiento del electrodo. El límite superior elimina el ruido de alta frecuencia, incluyendo la interferencia de la red eléctrica a 50/60\,Hz, sin afectar las componentes diagnósticas del ECG (la mayor parte de la energía del QRS se concentra por debajo de 25\,Hz). El filtrado se implementó con la función \texttt{filtfilt} de SciPy, que aplica el filtro en dirección hacia adelante y hacia atrás para obtener fase cero y evitar el desfase temporal de las ondas.
+
+\item \textbf{Detección de picos R}: En el modo de procesamiento de la base de datos MIT-BIH, se utilizaron directamente las anotaciones de los cardiólogos (\texttt{ann.sample}) como posiciones de los picos R. Este enfoque garantiza que cada latido segmentado corresponde exactamente a un latido anotado, evitando los errores de detección automática. Para el modo de señal CSV (señales de usuarios externos), se implementó un detector de picos locales con umbral adaptativo igual a la media más 0.5 desviaciones estándar de la señal, con distancia mínima entre picos equivalente a 200 lpm ($0.3 \cdot f_s$ muestras).
+
+\item \textbf{Segmentación de latidos}: Para cada pico R de posición $k$, se extrajo la subsecuencia de señal $x[k - 50 : k + 78]$, obteniendo un vector de 128 muestras. Los latidos cuya ventana excedía los límites del registro (primeros y últimos latidos de cada grabación) fueron descartados.
+
+\item \textbf{Normalización \textit{z-score}}: Cada segmento de 128 muestras $\mathbf{b} \in \mathbb{R}^{128}$ fue normalizado individualmente según:
+
+\begin{equation}
+\hat{b}_i = \frac{b_i - \mu_\mathbf{b}}{\sigma_\mathbf{b}}, \quad i = 1, \ldots, 128
+\label{eq:zscore}
+\end{equation}
+
+donde $\mu_\mathbf{b}$ y $\sigma_\mathbf{b}$ son la media y la desviación estándar del segmento, respectivamente. Esta normalización latido a latido elimina las variaciones de amplitud entre pacientes y electrodos, haciendo que el modelo aprenda formas de onda (\textit{morfología}) en lugar de valores absolutos de amplitud. Los segmentos con $\sigma_\mathbf{b} = 0$ (señal plana, generalmente artefactos) fueron descartados.
+
+\item \textbf{Asignación de etiquetas}: La etiqueta original de cada anotación fue mapeada a las cinco clases AAMI EC57 mediante el diccionario de correspondencia de la Tabla~\ref{T_aami}. Las anotaciones sin correspondencia en el mapeo fueron descartadas.
+
+\end{enumerate}
+
+El dataset resultante fue almacenado en formato binario NumPy: \texttt{X\_128.npy} con dimensiones $94{,}618 \times 128$ y \texttt{y\_128.npy} con $94{,}618$ etiquetas enteras de 0 a 4.
+
+% ───────────────────────────────────────────────────────────────────────────────
+\subsection{Fase 2: Diseño y entrenamiento del modelo neuronal base}
+% ───────────────────────────────────────────────────────────────────────────────
+
+\subsubsection{Arquitectura del modelo ECG\_ResNet\_SE}
+
+Se diseñó una red neuronal convolucional unidimensional con conexiones residuales y mecanismo de atención por canal, denominada \textbf{ECG\_ResNet\_SE}. La arquitectura combina dos componentes de la literatura de aprendizaje profundo: los bloques residuales (\textit{ResNet}) \cite{He2016} y el mecanismo \textit{Squeeze-and-Excitation} (SE) \cite{Hu2018}, adaptados a señales temporales unidimensionales.
+
+La selección de esta arquitectura sobre una CNN convencional responde a dos limitaciones identificadas durante el análisis: (1) las redes puramente convolucionales profundas sufren del problema del desvanecimiento del gradiente en capas profundas, lo que dificulta el aprendizaje de características a múltiples escalas temporales simultáneamente; (2) todos los canales de características contribuyen por igual al vector de representación final, sin importar su relevancia para el tipo de latido específico que se clasifica. Las conexiones residuales resuelven el primer problema y el bloque SE resuelve el segundo.
+
+La estructura completa de la red se presenta en la Tabla~\ref{T_arquitectura}.
+
+\begin{table}[h]
+\caption{Arquitectura de la red neuronal ECG\_ResNet\_SE. Las dimensiones indican (canales, longitud temporal).}
+\label{T_arquitectura}
+\begin{center}
+\begin{tabular}{clcc}
+\hline
+\textbf{Bloque} & \textbf{Operación} & \textbf{Configuración} & \textbf{Salida} \\ \hline
+Entrada  & ---                                       & ---                                        & (1, 128)    \\
+Stem     & Conv1d + BatchNorm + ReLU                 & 32 filtros, kernel\,=\,7, padding\,=\,3    & (32, 128)   \\
+Layer 1  & ResBlock1D(32$\to$32) + MaxPool(2)        & kernel\,=\,5, shortcut: identidad          & (32, 64)    \\
+Layer 2  & ResBlock1D(32$\to$64) + MaxPool(2)        & kernel\,=\,5, shortcut: Conv 1$\times$1    & (64, 32)    \\
+Layer 3  & ResBlock1D(64$\to$128) + MaxPool(2)       & kernel\,=\,5, shortcut: Conv 1$\times$1    & (128, 16)   \\
+SE       & SEBlock1D(128, ratio\,=\,8)               & FC\,128$\to$16$\to$128, Sigmoid            & (128, 16)   \\
+Pool     & AdaptiveAvgPool1d(1)                      & ---                                        & (128, 1)    \\
+Flatten  & ---                                       & ---                                        & 128         \\
+FC1      & Linear + ReLU + Dropout(0.4)              & 128$\to$64                                 & 64          \\
+Salida   & Linear                                    & 64$\to$5                                   & 5 logits    \\
+\hline
+\multicolumn{3}{l}{\textbf{Total de parámetros entrenables}} & \textbf{188,469} \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\paragraph{Bloque ResBlock1D.}
+Cada bloque residual aplica dos convoluciones con normalización por lotes (\textit{Batch Normalization}) y activación ReLU, sumando la entrada original al resultado mediante una conexión de salto (\textit{shortcut connection}). Formalmente, para una entrada $\mathbf{x}$, la salida del bloque es:
+
+\begin{equation}
+\mathbf{y} = \text{ReLU}\!\left(\mathcal{F}(\mathbf{x}) + \mathcal{S}(\mathbf{x})\right)
+\label{eq:resblock}
+\end{equation}
+
+donde $\mathcal{F}(\mathbf{x}) = \text{BN}(\text{Conv}_2(\text{ReLU}(\text{BN}(\text{Conv}_1(\mathbf{x})))))$ es la transformación de las dos convoluciones y $\mathcal{S}(\mathbf{x})$ es el \textit{shortcut}: una proyección Conv\,$1\times 1$ + BN cuando el número de canales cambia entre la entrada y la salida del bloque, o la identidad en caso contrario. La suma residual garantiza que el gradiente fluya directamente hacia capas anteriores durante la retropropagación, evitando el desvanecimiento en redes profundas.
+
+\paragraph{Bloque SEBlock1D.}
+El bloque \textit{Squeeze-and-Excitation} aprende un vector de importancia por canal de forma dinámica para cada entrada. Dado el mapa de características $\mathbf{X} \in \mathbb{R}^{C \times L}$ con $C$ canales y longitud temporal $L$, el bloque opera en tres etapas:
+
+\begin{enumerate}
+\item \textbf{Squeeze}: Se comprime la dimensión temporal mediante promedio global, generando un descriptor de canal $\mathbf{z} \in \mathbb{R}^C$:
+\begin{equation}
+z_c = \frac{1}{L} \sum_{l=1}^{L} X_{c,l}
+\label{eq:squeeze}
+\end{equation}
+
+\item \textbf{Excitation}: El descriptor pasa por dos capas completamente conectadas que aprenden relaciones no lineales entre canales, produciendo un vector de recalibración $\mathbf{s} \in (0,1)^C$:
+\begin{equation}
+\mathbf{s} = \sigma\!\left(\mathbf{W}_2\,\delta\!\left(\mathbf{W}_1 \mathbf{z}\right)\right)
+\label{eq:excitation}
+\end{equation}
+donde $\mathbf{W}_1 \in \mathbb{R}^{C/r \times C}$, $\mathbf{W}_2 \in \mathbb{R}^{C \times C/r}$, $\delta$ es la función ReLU, $\sigma$ es la función sigmoide y $r=8$ es el factor de reducción.
+
+\item \textbf{Recalibración}: Cada canal del mapa de características es multiplicado por su escalar de importancia correspondiente:
+\begin{equation}
+\tilde{X}_{c,l} = s_c \cdot X_{c,l}
+\label{eq:recal}
+\end{equation}
+\end{enumerate}
+
+Esto permite que la red enfatice los canales de características más relevantes para cada tipo de morfología de latido y suprima los menos informativos, de forma adaptativa en función del latido procesado.
+
+\subsubsection{Estrategia de entrenamiento}
+
+El dataset fue dividido en tres particiones con estratificación por clase para preservar las proporciones de clases minoritarias en todos los conjuntos: 70\% para entrenamiento (66,233 latidos), 15\% para validación (14,192 latidos) y 15\% como conjunto de prueba independiente (14,193 latidos). El conjunto de prueba no fue utilizado en ninguna decisión de diseño ni ajuste de hiperparámetros; se reservó exclusivamente para la evaluación final.
+
+\paragraph{Función de pérdida: Focal Loss.}
+El marcado desbalance de clases del dataset (clase N: 79.3\%; clase F: 0.8\%) hace que una función de pérdida estándar de entropía cruzada tienda a ignorar las clases minoritarias, maximizando la exactitud global a costa de la sensibilidad en las clases más relevantes clínicamente. Se empleó la \textit{Focal Loss} \cite{Lin2017}, definida como:
+
+\begin{equation}
+\text{FL}(p_t) = -\alpha_t\,(1 - p_t)^\gamma \log(p_t)
+\label{eq:focal}
+\end{equation}
+
+donde $p_t$ es la probabilidad predicha para la clase correcta, $\gamma = 2$ es el factor de modulación que reduce la contribución al gradiente de los ejemplos bien clasificados (fáciles), forzando el aprendizaje a concentrarse en los ejemplos difíciles, y $\alpha_t$ es el peso de clase para la clase $t$.
+
+Los pesos $\alpha_c$ fueron calculados como la raíz cuadrada del inverso de la frecuencia de cada clase $c$, normalizados para que la suma sea igual al número de clases:
+
+\begin{equation}
+\alpha_c = \frac{\sqrt{1/n_c}}{\sum_{k=1}^{5} \sqrt{1/n_k}} \cdot 5
+\label{eq:alpha}
+\end{equation}
+
+donde $n_c$ es el número de latidos de la clase $c$ en el conjunto de entrenamiento. La elección de la raíz cuadrada en lugar de la inversa directa ($1/n_c$) fue resultado de la experimentación: con $1/n_c$, el peso de la clase F resultó ser 3.38 veces mayor que el de la clase N, lo que provocó una sobrepredicción masiva de la clase F (precisión: 0.49, recall: 0.87 con $1/n_c$ frente a precisión: 0.64, recall: 0.93 con $\sqrt{1/n_c}$). La raíz cuadrada produce pesos más moderados y balanceados.
+
+\paragraph{Muestreo ponderado.}
+Adicionalmente a la Focal Loss, se empleó un \textit{WeightedRandomSampler} para asegurar que cada minibatch durante el entrenamiento contenga una representación balanceada de todas las clases. Para cada latido del conjunto de entrenamiento se asigna una probabilidad de muestreo proporcional a $1/n_{c(i)}$, donde $c(i)$ es la clase del latido $i$. Esto garantiza que las clases S y F, con apenas 3.2\% y 0.8\% del dataset, estén presentes en todos los minibatches de forma proporcional.
+
+\paragraph{Aumentación de datos.}
+Para mejorar la generalización y reducir el sobreajuste, se aplicaron dos transformaciones estocásticas durante el entrenamiento:
+\begin{itemize}
+\item \textbf{Ruido gaussiano aditivo}: $\tilde{b}_i = b_i + \varepsilon_i$, donde $\varepsilon_i \sim \mathcal{N}(0,\,0.01^2)$. Simula el ruido de medición del electrodo.
+\item \textbf{Escalado de amplitud}: $\tilde{b}_i = s \cdot b_i$, donde $s \sim \mathcal{U}(0.9,\,1.1)$. Simula variaciones en la impedancia electrodo-piel entre pacientes.
+\end{itemize}
+
+Estas transformaciones se aplican únicamente durante el entrenamiento, no durante la validación ni la evaluación.
+
+\paragraph{Optimizador y programador de tasa de aprendizaje.}
+Se utilizó el optimizador AdamW \cite{Loshchilov2019} con tasa de aprendizaje inicial $\alpha = 10^{-3}$ y decaimiento de peso $\lambda = 10^{-4}$. Para controlar la tasa de aprendizaje a lo largo del entrenamiento se empleó el programador \textit{OneCycleLR}: durante el 10\% inicial de las iteraciones la tasa de aprendizaje aumenta linealmente desde $\alpha/10$ hasta $\alpha$ (fase de calentamiento), y a partir de ese punto decrece suavemente siguiendo una curva coseno hasta $\alpha/10^4$ al final del entrenamiento. Este perfil ha demostrado superar al decaimiento escalonado clásico (\textit{StepLR}) en velocidad de convergencia y calidad final del modelo.
+
+\paragraph{Criterio de parada temprana.}
+Se implementó parada temprana (\textit{early stopping}) con paciencia de 8 épocas monitorizando el F1-Score macro en el conjunto de validación. Cuando este indicador no mejoraba durante 8 épocas consecutivas, el entrenamiento se detenía y se restauraban los pesos de la época con mejor F1 de validación. El entrenamiento máximo se fijó en 50 épocas.
+
+El modelo resultante fue guardado como \texttt{models/ecg\_resnet\_se\_base.pth} y constituye el punto de partida del sistema, denominado \textbf{modelo estático} en la evaluación comparativa.
+
+% ───────────────────────────────────────────────────────────────────────────────
+\subsection{Fase 3: Módulo de reentrenamiento continuo con Replay Buffer}
+% ───────────────────────────────────────────────────────────────────────────────
+
+\subsubsection{El problema del \textit{Catastrophic Forgetting}}
+
+Un modelo neuronal entrenado sobre un conjunto de datos inicial pierde gradualmente el conocimiento adquirido cuando se actualiza con nuevos datos provenientes de una distribución diferente. Este fenómeno, conocido como \textit{Catastrophic Forgetting} \cite{McCloskey1989}, ocurre porque el descenso de gradiente sobre los nuevos ejemplos sobreescribe los pesos que codificaban el conocimiento anterior. En el contexto clínico de este proyecto, esto equivale a que el modelo, al adaptarse a los patrones de un nuevo paciente, pierda la capacidad de clasificar correctamente los patrones de pacientes anteriores.
+
+La solución implementada es la técnica de \textit{Experience Replay} \cite{Ratcliff1990}, que consiste en almacenar una muestra representativa de los datos anteriores en un buffer de memoria y mezclarlos con los nuevos datos en cada iteración de reentrenamiento. De esta forma, el modelo actualiza sus pesos considerando simultáneamente ejemplos nuevos y ejemplos del pasado, preservando el conocimiento previo sin necesidad de almacenar todo el dataset histórico.
+
+\subsubsection{Implementación del Replay Buffer}
+
+El Replay Buffer implementado en el módulo \texttt{ReplayBuffer} de \texttt{src/ui/app.py} funciona como una cola FIFO (\textit{First-In, First-Out}) de capacidad máxima $M = 2{,}000$ latidos. Su estructura de datos interna mantiene dos listas: $\mathbf{X}_\text{buf}$ con los segmentos de señal y $\mathbf{y}_\text{buf}$ con sus etiquetas correspondientes.
+
+Cuando se agregan nuevos latidos al buffer y la capacidad es superada, se descartan los latidos más antiguos, preservando los 2,000 más recientes. Esta política garantiza que el buffer refleje siempre los patrones más actuales, con prioridad sobre los más antiguos.
+
+El Replay Buffer se persiste entre sesiones de reentrenamiento en el archivo \texttt{models/replay\_buffer.npz}, lo que permite que el sistema continúe aprendiendo de forma acumulativa entre distintas sesiones de uso, incluso después de reiniciar la aplicación.
+
+\subsubsection{Algoritmo de reentrenamiento incremental}
+
+En cada sesión de reentrenamiento sobre un nuevo conjunto de latidos $(\mathbf{X}_\text{new}, \mathbf{y}_\text{new})$, el algoritmo procede de la siguiente manera:
+
+\begin{enumerate}
+\item Se agregan los nuevos latidos al Replay Buffer.
+\item Se extraen aleatoriamente $n_r = \lfloor |\mathbf{X}_\text{new}| \cdot 0.5 \rfloor$ latidos del buffer como muestra de experiencias pasadas, obteniendo $(\mathbf{X}_\text{rep}, \mathbf{y}_\text{rep})$.
+\item Se construye el conjunto de entrenamiento combinado: $\mathbf{X}_\text{comb} = [\mathbf{X}_\text{new};\, \mathbf{X}_\text{rep}]$, $\mathbf{y}_\text{comb} = [\mathbf{y}_\text{new};\, \mathbf{y}_\text{rep}]$.
+\item Se permuta aleatoriamente el conjunto combinado y se entrena el modelo durante 5 épocas con el optimizador Adam (tasa de aprendizaje $\alpha = 10^{-4}$, función de pérdida de entropía cruzada) y minibatches de 64 latidos.
+\end{enumerate}
+
+La tasa de aprendizaje reducida ($10^{-4}$ frente a $10^{-3}$ del entrenamiento base) es fundamental para preservar las representaciones aprendidas: una tasa demasiado alta provocaría que la actualización sobre el conjunto pequeño sobreescribiera los pesos del modelo base.
+
+La proporción 50\% datos nuevos / 50\% buffer fue elegida como equilibrio entre plasticidad (capacidad de aprender nuevos patrones) y estabilidad (retención del conocimiento previo). Esta relación constituye el parámetro central de compromiso plasticidad-estabilidad (\textit{stability-plasticity trade-off}) en aprendizaje continuo.
+
+\subsubsection{Configuración experimental para la evaluación (Fase 3B)}
+
+Para la evaluación formal del módulo de reentrenamiento continuo, el dataset completo de 94,618 latidos fue dividido en 6 lotes secuenciales de aproximadamente 15,770 latidos cada uno, representando la llegada progresiva de datos de distintos grupos de pacientes. Esta división temporal es la metodología estándar en investigación de \textit{Continual Learning} para evaluar la degradación y recuperación del rendimiento ante distribuciones de datos no estacionarias.
+
+El lote 0 actuó como referencia de partida: sus latidos fueron añadidos al Replay Buffer para inicializarlo, pero no se realizó reentrenamiento sobre él, por lo que el modelo evaluado en este lote es idéntico al modelo base. Los lotes 1 a 5 fueron procesados secuencialmente, ejecutando el algoritmo de reentrenamiento incremental descrito anteriormente en cada uno. Tras cada lote, se evaluó tanto el modelo estático (pesos fijos del modelo base) como el modelo adaptativo (pesos actualizados) sobre los latidos del lote actual, registrando exactitud y F1-Score macro.
+
+% ───────────────────────────────────────────────────────────────────────────────
+\subsection{Fase 4: Evaluación comparativa formal}
+% ───────────────────────────────────────────────────────────────────────────────
+
+\subsubsection{Protocolo de evaluación}
+
+La evaluación comparativa formal se realizó sobre el dataset completo (94,618 latidos), comparando el \textbf{modelo estático} (pesos fijos del entrenamiento base, sin ninguna actualización posterior) contra el \textbf{modelo adaptativo} (pesos del modelo tras el reentrenamiento continuo sobre los 6 lotes). Este protocolo garantiza que la comparación refleje el efecto del reentrenamiento continuo sobre el rendimiento global, no solo sobre los últimos datos recibidos.
+
+\subsubsection{Métricas de evaluación}
+
+Las métricas calculadas para cada modelo fueron:
+
+\begin{itemize}
+\item \textbf{Exactitud} (\textit{Accuracy}): fracción de latidos correctamente clasificados sobre el total.
+
+\item \textbf{Precisión} (\textit{Precision}) por clase $c$: $P_c = \text{TP}_c / (\text{TP}_c + \text{FP}_c)$. Fracción de predicciones de la clase $c$ que son correctas.
+
+\item \textbf{Sensibilidad} (\textit{Recall}) por clase $c$: $R_c = \text{TP}_c / (\text{TP}_c + \text{FN}_c)$. Fracción de latidos reales de la clase $c$ que el modelo detecta correctamente.
+
+\item \textbf{F1-Score} por clase $c$: $\text{F1}_c = 2 \cdot P_c \cdot R_c / (P_c + R_c)$. Media armónica entre precisión y sensibilidad.
+
+\item \textbf{F1-Score macro}: promedio no ponderado del F1-Score sobre las cinco clases, que pondera por igual a las clases minoritarias y mayoritarias.
+\end{itemize}
+
+\subsubsection{Análisis de significancia estadística: Prueba de McNemar}
+
+Para determinar si la diferencia de rendimiento entre ambos modelos es estadísticamente significativa o podría atribuirse al azar, se aplicó la prueba de McNemar \cite{McNemar1947}. Esta prueba evalúa si dos clasificadores cometen errores distintos sobre los mismos ejemplos; es el método estándar para comparar clasificadores sobre un mismo conjunto de datos de prueba.
+
+Dado que la función \texttt{mcnemar} no está disponible en versiones recientes de SciPy, el estadístico de prueba fue calculado manualmente. Si $b$ es el número de latidos clasificados correctamente solo por el modelo adaptativo y $c$ el número clasificado correctamente solo por el modelo estático, el estadístico es:
+
+\begin{equation}
+\chi^2_\text{McNemar} = \frac{(|b - c| - 1)^2}{b + c}
+\label{eq:mcnemar}
+\end{equation}
+
+que sigue una distribución $\chi^2$ con 1 grado de libertad bajo la hipótesis nula de que ambos modelos tienen el mismo rendimiento. Se rechaza la hipótesis nula si $p < 0.05$.
+
+% ───────────────────────────────────────────────────────────────────────────────
+\subsection{Interfaz de usuario}
+% ───────────────────────────────────────────────────────────────────────────────
+
+Se desarrolló una interfaz de usuario web utilizando el framework \textbf{Streamlit}, accesible desde cualquier navegador al ejecutar \texttt{streamlit run src/ui/app.py} desde el directorio raíz del proyecto. La interfaz integra el pipeline completo de análisis e inferencia, así como el módulo de reentrenamiento continuo interactivo, en una sola aplicación sin necesidad de conocimientos de programación por parte del usuario.
+
+La interfaz se organiza en tres pestañas principales:
+
+\begin{enumerate}
+\item \textbf{Análisis e Inferencia}: Permite seleccionar cualquiera de los 48 registros de la MIT-BIH Arrhythmia Database o cargar una señal ECG propia en formato CSV. Al presionar el botón \textit{Analizar}, se ejecuta automáticamente el pipeline completo: filtrado pasa-banda, segmentación de latidos con ventana de 128 muestras, normalización \textit{z-score} e inferencia con el modelo seleccionado. Los resultados incluyen una gráfica interactiva de la señal ECG con los picos R codificados por color según la clase predicha, la distribución de clases detectadas, las métricas por clase (precisión, sensibilidad, especificidad, F1-Score) y una tabla detallada con la predicción y confianza para cada latido individual. El usuario puede seleccionar entre el modelo estático y el modelo adaptativo para la inferencia. Esta pestaña también incorpora el módulo de reentrenamiento continuo: el usuario puede ajustar el número de épocas (1–15), la tasa de aprendizaje ($10^{-5}$ a $10^{-3}$) y el tamaño del Replay Buffer (500–5,000 latidos), y presionar \textit{Reentrenar} para actualizar los pesos del modelo adaptativo con los latidos del registro actualmente cargado. El sistema compara automáticamente las métricas antes y después del reentrenamiento.
+
+\item \textbf{Historial de Reentrenamiento}: Presenta la evolución temporal del rendimiento del modelo adaptativo a lo largo de todas las sesiones de reentrenamiento interactivas realizadas por el usuario. Incluye gráficas de exactitud y F1-Score macro antes y después de cada sesión, el número de latidos incorporados por sesión y una tabla exportable en formato CSV. Este historial se persiste de forma permanente en \texttt{models/retrain\_history.json}.
+
+\item \textbf{Análisis Comparativo}: Muestra la comparación formal entre el modelo estático y el modelo adaptativo. Los indicadores clave de rendimiento (KPI) del modelo adaptativo se calculan dinámicamente como el promedio de los últimos resultados por registro en el historial de reentrenamiento, de forma que reflejan el estado actual del modelo. En ausencia de historial, se muestran los resultados de la evaluación formal de la Fase 3B como referencia. Incluye gráficas comparativas de exactitud y F1-Score macro por registro, así como la evolución del F1-Score promedio acumulado a lo largo de las sesiones.
+\end{enumerate}
 
 \section{Resultados}
 
 \subsection{Fase 1: Adquisición y preprocesamiento de datos}
 
-Se descargaron exitosamente los 48 registros de la MIT-BIH Arrhythmia Database mediante la biblioteca \texttt{wfdb}. Tras la aplicación del protocolo de preprocesamiento descrito en la sección 3.1.3, se obtuvo un dataset de 94,627 latidos con dimensiones $94{,}627 \times 71$. La distribución de clases se presenta en la Tabla \ref{T_distribucion}.
+Se descargaron exitosamente los 48 registros de la MIT-BIH Arrhythmia Database mediante la biblioteca \texttt{wfdb}. Tras la aplicación del protocolo de preprocesamiento descrito en la sección 3.1.3, se obtuvo un dataset de 94,618 latidos con dimensiones $94{,}618 \times 128$. La distribución de clases se presenta en la Tabla \ref{T_distribucion}.
 
 \begin{table}[h]
 \caption{Distribución de clases en el dataset procesado de la MIT-BIH Arrhythmia Database bajo el estándar AAMI EC57.}
@@ -88,85 +325,163 @@ Se descargaron exitosamente los 48 registros de la MIT-BIH Arrhythmia Database m
 \begin{tabular}{cccc}
 \hline
 \textbf{Clase} & \textbf{Descripción} & \textbf{Latidos} & \textbf{Porcentaje} \\ \hline
-N & Normal & 75,052 & 79.3\% \\
-V & Ventricular ectópico & 7,190 & 7.6\% \\
-Q & No clasificable & 8,518 & 9.0\% \\
-S & Supraventricular ectópico & 3,028 & 3.2\% \\
-F & Fusión & 839 & 0.8\% \\
+N & Normal                   & 75,040 & 79.3\% \\
+V & Ventricular ectópico     &  7,235 &  7.6\% \\
+Q & No clasificable          &  8,515 &  9.0\% \\
+S & Supraventricular ectópico &  3,026 &  3.2\% \\
+F & Fusión                   &    802 &  0.8\% \\
 \hline
-\textbf{Total} & & \textbf{94,627} & \textbf{100.0\%} \\
+\textbf{Total} & & \textbf{94,618} & \textbf{100.0\%} \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-El dataset presenta un marcado desbalance de clases, con la clase N representando el 79.3\% de los latidos y la clase F apenas el 0.8\%. Este desbalance fue abordado mediante pesos de clase en la función de pérdida durante el entrenamiento.
+El dataset presenta un marcado desbalance de clases, con la clase N representando el 79.3\% de los latidos y la clase F apenas el 0.8\%. Este desbalance fue abordado mediante Focal Loss con pesos de clase $\alpha_c = \sqrt{1/n_c}$ y WeightedRandomSampler durante el entrenamiento.
 
-\subsection{Fase 2: Entrenamiento base del modelo CNN}
+\subsection{Fase 2: Entrenamiento base del modelo}
 
-El modelo ECG\_CNN fue entrenado durante 30 épocas en Google Colaboratory con GPU NVIDIA Tesla T4. La exactitud de validación alcanzó el \textbf{94.00\%} al finalizar el entrenamiento. La curva de aprendizaje mostró convergencia estable sin señales de sobreajuste, validando la adecuación de la arquitectura y los hiperparámetros seleccionados. El modelo base entrenado fue guardado en \texttt{models/ecg\_cnn\_base.pth} y sirvió como punto de partida para el módulo de reentrenamiento continuo.
+El modelo ECG\_ResNet\_SE fue entrenado durante 50 épocas en Google Colaboratory con GPU NVIDIA Tesla T4. La Tabla \ref{T_fase2} presenta los resultados obtenidos en el conjunto de prueba (14,192 latidos).
+
+\begin{table}[h]
+\caption{Resultados del entrenamiento base del modelo ECG\_ResNet\_SE sobre el conjunto de prueba (14,192 latidos, Fase 2).}
+\label{T_fase2}
+\begin{center}
+\begin{tabular}{lcc}
+\hline
+\textbf{Clase} & \textbf{Precisión} & \textbf{F1-Score} \\ \hline
+N (Normal)                     & 0.9936 & 0.9823 \\
+S (Supraventricular ectópico)  & 0.7054 & 0.7895 \\
+V (Ventricular ectópico)       & 0.9506 & 0.9546 \\
+F (Fusión)                     & 0.5866 & 0.7000 \\
+Q (No clasificable)            & 0.9448 & 0.9675 \\
+\hline
+\textbf{Macro promedio}        & \textbf{0.8362} & \textbf{0.8788} \\
+\hline
+\multicolumn{2}{l}{\textbf{Exactitud (\textit{Accuracy})}} & \textbf{96.89\%} \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+La curva de aprendizaje mostró convergencia estable sin señales de sobreajuste. La clase S alcanzó un F1-Score de 0.7895 en el modelo base, resultado superior al que obtenía el modelo adaptativo de la arquitectura anterior (F1 S = 0.7737), lo que confirma que la ventana de 128 muestras beneficia directamente la detección de ectópicos supraventriculares al capturar la morfología completa de la onda P.
 
 \subsection{Fase 3: Reentrenamiento continuo}
 
-El módulo de reentrenamiento continuo fue aplicado sobre los 5 lotes secuenciales. La Tabla \ref{T_fase3} presenta las métricas finales comparativas entre el modelo estático y el modelo adaptativo evaluadas al finalizar el procesamiento de los 5 lotes.
+El módulo de reentrenamiento continuo fue aplicado sobre los 6 lotes secuenciales. La Tabla \ref{T_fase3} presenta la exactitud y el F1-Score macro del modelo estático y del modelo adaptativo (después del reentrenamiento) en cada lote.
 
 \begin{table}[h]
-\caption{Comparación de métricas entre el modelo estático y el modelo adaptativo tras el reentrenamiento continuo sobre 5 lotes secuenciales (Fase 3).}
+\caption{Evolución de la exactitud y el F1-Score macro por lote secuencial — Modelo estático vs. modelo adaptativo (Fase 3).}
 \label{T_fase3}
 \begin{center}
-\begin{tabular}{ccc}
+\begin{tabular}{cccccc}
 \hline
-\textbf{Métrica} & \textbf{Modelo estático} & \textbf{Modelo adaptativo} \\ \hline
-Exactitud (\textit{Accuracy}) & 93.54\% & \textbf{97.83\%} \\
-F1-Score macro & 0.7849 & \textbf{0.9071} \\
-F1-Score ponderado & 0.9447 & \textbf{0.9773} \\
+\multirow{2}{*}{\textbf{Lote}} & \multirow{2}{*}{\textbf{Latidos}} &
+\multicolumn{2}{c}{\textbf{Modelo estático}} &
+\multicolumn{2}{c}{\textbf{Modelo adaptativo}} \\
+\cline{3-6}
+& & \textbf{Acc} & \textbf{F1 macro} & \textbf{Acc} & \textbf{F1 macro} \\
+\hline
+0 (referencia) & 15,770 & 0.9744 & 0.9061 & 0.9744 & 0.9061 \\
+1              & 15,770 & 0.9717 & 0.9013 & \textbf{0.9941} & \textbf{0.9734} \\
+2              & 15,770 & 0.9715 & 0.8851 & \textbf{0.9922} & \textbf{0.9655} \\
+3              & 15,770 & 0.9720 & 0.8959 & \textbf{0.9958} & \textbf{0.9820} \\
+4              & 15,769 & 0.9732 & 0.8897 & \textbf{0.9940} & \textbf{0.9736} \\
+5              & 15,769 & 0.9730 & 0.8943 & \textbf{0.9951} & \textbf{0.9775} \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-El modelo adaptativo superó al modelo estático en todas las métricas, con una mejora de \textbf{+4.29 puntos porcentuales} en exactitud y \textbf{+0.1222} en F1-Score macro. La mejora en el F1 macro es especialmente relevante ya que indica que el modelo adaptativo mejoró su rendimiento de manera uniforme en todas las clases, incluyendo las clases minoritarias (F y S), no únicamente en la clase mayoritaria (N).
+El modelo adaptativo supera consistentemente al modelo estático desde el primer lote de reentrenamiento. La mejora en F1-Score macro es de hasta +0.0861 puntos en el lote 3, y el modelo mantiene valores superiores a 0.97 de Accuracy en todos los lotes posteriores al primero.
 
-\subsection{Fase 4: Evaluación comparativa formal}
+\subsection{Evaluación comparativa formal}
 
-La evaluación comparativa formal se realizó sobre el conjunto de validación completo (75,702 latidos, lotes 1 a 4). Los resultados se presentan en la Tabla \ref{T_fase4}.
+La evaluación comparativa formal se realizó sobre el dataset completo (94,618 latidos). Los resultados se presentan en la Tabla \ref{T_fase4}.
 
 \begin{table}[h]
-\caption{Resultados de la evaluación comparativa formal entre el modelo estático y el modelo adaptativo (Fase 4).}
+\caption{Resultados de la evaluación comparativa formal entre el modelo estático y el modelo adaptativo sobre el dataset completo (94,618 latidos).}
 \label{T_fase4}
 \begin{center}
 \begin{tabular}{ccc}
 \hline
 \textbf{Métrica} & \textbf{Modelo estático} & \textbf{Modelo adaptativo} \\ \hline
-Exactitud (\textit{Accuracy}) & 88.72\% & \textbf{97.41\%} \\
-F1-Score macro & 0.7381 & \textbf{0.8954} \\
+Exactitud (\textit{Accuracy}) & 97.26\% & \textbf{99.06\%} \\
+F1-Score macro                & 0.8955  & \textbf{0.9592} \\
+F1-Score ponderado            & 0.9739  & \textbf{0.9905} \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-La mejora observada en la evaluación formal es de \textbf{+8.69 puntos porcentuales} en exactitud y \textbf{+0.1573} en F1-Score macro, confirming the superior adaptability of the continuous retraining system. [COMPLETAR: agregar tabla de métricas por clase y curvas ROC a partir de las figuras generadas en \texttt{docs/}]
+La mejora observada es de \textbf{+1.80 puntos porcentuales} en exactitud y \textbf{+0.0637} en F1-Score macro, confirmando la superioridad del sistema con reentrenamiento continuo frente al modelo estático.
+
+\subsection{Métricas por clase — Evaluación comparativa}
+
+La Tabla \ref{T_por_clase} presenta las métricas de precisión, sensibilidad y F1-Score para cada clase AAMI EC57, comparando el modelo estático con el modelo adaptativo sobre el dataset completo.
+
+\begin{table}[h]
+\caption{Métricas por clase AAMI EC57 — Modelo estático vs. modelo adaptativo (94{,}618 latidos).}
+\label{T_por_clase}
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{clcccccc}
+\hline
+\multirow{2}{*}{\textbf{Clase}} & \multirow{2}{*}{\textbf{Soporte}} &
+\multicolumn{3}{c}{\textbf{Modelo estático}} &
+\multicolumn{3}{c}{\textbf{Modelo adaptativo}} \\
+\cline{3-8}
+& & \textbf{Prec.} & \textbf{Sens.} & \textbf{F1} &
+  \textbf{Prec.} & \textbf{Sens.} & \textbf{F1} \\
+\hline
+N & 75{,}040 & 0.9945 & 0.9742 & 0.9842 & 0.9938 & 0.9960 & \textbf{0.9949} \\
+S &  3{,}026 & 0.7153 & 0.9032 & 0.7983 & 0.9449 & 0.8900 & \textbf{0.9166} \\
+V &  7{,}235 & 0.9633 & 0.9660 & 0.9647 & 0.9868 & 0.9797 & \textbf{0.9832} \\
+F &    802   & 0.6395 & 0.9289 & 0.7575 & 0.9110 & 0.9065 & \textbf{0.9087} \\
+Q &  8{,}515 & 0.9532 & 0.9935 & 0.9730 & 0.9885 & 0.9964 & \textbf{0.9924} \\
+\hline
+\textbf{Macro} & — & 0.8532 & 0.9532 & 0.8955 & 0.9650 & 0.9537 & \textbf{0.9592} \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+La mejora del modelo adaptativo es especialmente notable en las clases minoritarias S y F. Para la clase S (supraventricular ectópico), la precisión aumentó de 0.7153 a 0.9449 (+0.2296) y el F1-Score de 0.7983 a 0.9166 (+0.1183). Para la clase F (fusión), la precisión pasó de 0.6395 a 0.9110 (+0.2715) y el F1-Score de 0.7575 a 0.9087 (+0.1512). Estas clases, que representan el 3.2\% y el 0.8\% del dataset respectivamente, son clínicamente relevantes ya que corresponden a arritmias de difícil detección automática.
+
+\subsection{Evolución del rendimiento por lote}
+
+La Figura \ref{F_evolucion} muestra la evolución de la exactitud y el F1-Score macro a lo largo de los seis lotes de evaluación, permitiendo visualizar la mejora progresiva del modelo adaptativo conforme se incorporan nuevos datos.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.92\textwidth]{../docs/fase3b_evolucion.png}
+\end{center}
+\caption{Evolución de la exactitud y el F1-Score macro por lote secuencial. El modelo adaptativo (línea azul) mantiene consistentemente un rendimiento superior al modelo estático (línea gris) en todos los lotes evaluados.}
+\label{F_evolucion}
+\end{figure}
+
+La exactitud del modelo adaptativo se mantuvo estable entre 99.22\% y 99.58\% a lo largo de los lotes 1 a 5 (variación máxima: 0.36 p.p.), mientras que el modelo estático osciló entre 97.15\% y 97.44\% sin tendencia de mejora. Este comportamiento confirma que el Replay Buffer garantiza estabilidad en el rendimiento ante la llegada progresiva de nuevos datos, sin degradación por \textit{Catastrophic Forgetting}.
 
 \subsection{Análisis estadístico: Prueba de McNemar}
 
-Para verificar si la diferencia de rendimiento entre ambos modelos es estadísticamente significativa, se aplicó la prueba de McNemar sobre las predicciones de ambos clasificadores en el conjunto de validación. Los resultados obtenidos fueron:
+Para verificar si la diferencia de rendimiento entre ambos modelos es estadísticamente significativa, se aplicó la prueba de McNemar sobre las predicciones de ambos clasificadores en el dataset completo. Los resultados obtenidos fueron:
 
 \begin{equation}
-\chi^2_{\text{McNemar}} = 5342, \quad p \approx 0
+\chi^2_{\text{McNemar}} = 1327.51, \quad p \approx 0
 \end{equation}
 
-El valor de $p \approx 0$ es extremadamente inferior al nivel de significancia estándar de $\alpha = 0.05$, por lo que se rechaza la hipótesis nula de que ambos clasificadores tienen el mismo rendimiento. La diferencia en exactitud entre el modelo adaptativo (97.83\%) y el modelo estático (93.54\%) es estadísticamente significativa, confirmando que el reentrenamiento continuo con Replay Buffer produce una mejora genuina y no atribuible al azar.
+El valor de $p \approx 0$ es extremadamente inferior al nivel de significancia estándar de $\alpha = 0.05$, por lo que se rechaza la hipótesis nula de que ambos clasificadores tienen el mismo rendimiento. La diferencia en exactitud entre el modelo adaptativo (99.06\%) y el modelo estático (97.26\%) es estadísticamente significativa, confirmando que el reentrenamiento continuo con Replay Buffer produce una mejora genuina y no atribuible al azar.
 
 \subsection{Interfaz de usuario}
 
 Se desarrolló una interfaz de usuario con Streamlit (\texttt{src/ui/app.py}) que permite la interacción en tiempo real con el sistema. La interfaz cuenta con tres pestañas principales:
 
 \begin{enumerate}
-\item \textbf{Análisis ECG}: Permite seleccionar registros de la base de datos MIT-BIH o cargar un archivo CSV con señal ECG propia. Aplica el preprocesamiento completo, ejecuta la inferencia con el modelo adaptativo y muestra las predicciones por clase junto con las probabilidades de confianza.
+\item \textbf{Análisis ECG}: Permite seleccionar registros de la base de datos MIT-BIH o cargar un archivo CSV con señal ECG propia. Aplica el preprocesamiento completo (filtrado, segmentación con ventana de 128 muestras, normalización), ejecuta la inferencia con el modelo adaptativo y muestra las predicciones por clase junto con las probabilidades de confianza.
 
-\item \textbf{Reentrenamiento}: Permite iniciar sesiones interactivas de reentrenamiento incremental sobre registros seleccionados, actualizando el Replay Buffer y los pesos del modelo en tiempo real. Muestra las métricas de rendimiento antes y después de cada sesión.
+\item \textbf{Comparación}: Presenta la comparación formal entre el modelo estático y el modelo adaptativo mediante gráficas interactivas de exactitud y F1-Score macro, incluyendo la evolución por sesión de reentrenamiento para cada registro MIT-BIH procesado.
 
-\item \textbf{Historial}: Presenta la evolución temporal de la exactitud y el F1-Score a lo largo de las sesiones de reentrenamiento, almacenada persistentemente en \texttt{models/retrain\_history.json}.
+\item \textbf{Historial}: Presenta la evolución temporal de la exactitud y el F1-Score a lo largo de las sesiones de reentrenamiento interactivas, almacenada persistentemente en \texttt{models/retrain\_history.json}. Permite reentrenar el modelo adaptativo sobre cualquier registro MIT-BIH seleccionado, actualizando los pesos del modelo y el Replay Buffer en tiempo real.
 \end{enumerate}
 
 La interfaz se inicia con el comando \texttt{streamlit run src/ui/app.py} desde el directorio raíz del proyecto.

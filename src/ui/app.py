@@ -34,16 +34,16 @@ from sklearn.metrics import (
 # ─── Rutas del proyecto ───────────────────────────────────────────────────────
 ROOT           = Path(__file__).resolve().parents[2]
 MODELS_DIR     = ROOT / "models"
-MODEL_STATIC   = MODELS_DIR / "ecg_cnn_base.pth"
-MODEL_ADAPTIVE = MODELS_DIR / "ADAPT-ECG-RETRAINED.pth"
+MODEL_STATIC   = MODELS_DIR / "ecg_resnet_se_base.pth"
+MODEL_ADAPTIVE = MODELS_DIR / "ecg_resnet_se_retrained.pth"
 BUFFER_PATH    = MODELS_DIR / "replay_buffer.npz"
 HISTORY_PATH   = MODELS_DIR / "retrain_history.json"
 MITBIH_DEFAULT = ROOT / "mit-bih-arrhythmia-database-1.0.0" / "mit-bih-arrhythmia-database-1.0.0"
 
 # ─── Constantes ───────────────────────────────────────────────────────────────
-BEAT_LEN     = 71
-BEAT_BEFORE  = 35
-BEAT_AFTER   = 36
+BEAT_LEN     = 128
+BEAT_BEFORE  = 50
+BEAT_AFTER   = 78
 N_CLASSES    = 5
 AAMI_CLASSES = ["N", "S", "V", "F", "Q"]
 AAMI_NAMES   = {"N": "Normal", "S": "Supraventricular",
@@ -58,28 +58,65 @@ AAMI_MAP = {
     "Q": "Q", "?": "Q", "/": "Q", "f": "Q", "!": "Q",
 }
 
-# ─── Arquitectura CNN ─────────────────────────────────────────────────────────
-class ECG_CNN(nn.Module):
-    def __init__(self, n_classes=5):
+# ─── Arquitectura ResNet + SE-Attention ──────────────────────────────────────
+import torch.nn.functional as F
+
+class ResBlock1D(nn.Module):
+    def __init__(self, in_ch, out_ch, kernel=5):
         super().__init__()
-        self.block1 = nn.Sequential(
-            nn.Conv1d(1, 32, kernel_size=5, padding=2),
-            nn.BatchNorm1d(32), nn.ReLU(), nn.MaxPool1d(2))
-        self.block2 = nn.Sequential(
-            nn.Conv1d(32, 64, kernel_size=5, padding=2),
-            nn.BatchNorm1d(64), nn.ReLU(), nn.MaxPool1d(2))
-        self.block3 = nn.Sequential(
-            nn.Conv1d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm1d(128), nn.ReLU(), nn.MaxPool1d(2))
+        pad = kernel // 2
+        self.conv1    = nn.Conv1d(in_ch, out_ch, kernel, padding=pad, bias=False)
+        self.bn1      = nn.BatchNorm1d(out_ch)
+        self.conv2    = nn.Conv1d(out_ch, out_ch, kernel, padding=pad, bias=False)
+        self.bn2      = nn.BatchNorm1d(out_ch)
+        self.shortcut = nn.Sequential(
+            nn.Conv1d(in_ch, out_ch, 1, bias=False),
+            nn.BatchNorm1d(out_ch)
+        ) if in_ch != out_ch else nn.Identity()
+
+    def forward(self, x):
+        residual = self.shortcut(x)
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = self.bn2(self.conv2(x))
+        return F.relu(x + residual)
+
+class SEBlock1D(nn.Module):
+    def __init__(self, channels, ratio=8):
+        super().__init__()
         self.pool = nn.AdaptiveAvgPool1d(1)
+        self.fc   = nn.Sequential(
+            nn.Linear(channels, channels // ratio),
+            nn.ReLU(),
+            nn.Linear(channels // ratio, channels),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        b, c, _ = x.shape
+        s = self.pool(x).squeeze(-1)
+        e = self.fc(s).unsqueeze(-1)
+        return x * e
+
+class ECG_ResNet_SE(nn.Module):
+    def __init__(self, n_classes=5, input_len=128):
+        super().__init__()
+        self.stem   = nn.Sequential(
+            nn.Conv1d(1, 32, kernel_size=7, padding=3, bias=False),
+            nn.BatchNorm1d(32), nn.ReLU())
+        self.layer1 = nn.Sequential(ResBlock1D(32,  32),  nn.MaxPool1d(2))
+        self.layer2 = nn.Sequential(ResBlock1D(32,  64),  nn.MaxPool1d(2))
+        self.layer3 = nn.Sequential(ResBlock1D(64,  128), nn.MaxPool1d(2))
+        self.se     = SEBlock1D(128, ratio=8)
+        self.pool   = nn.AdaptiveAvgPool1d(1)
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(128, 64), nn.ReLU(), nn.Dropout(0.5),
+            nn.Linear(128, 64), nn.ReLU(), nn.Dropout(0.4),
             nn.Linear(64, n_classes))
 
     def forward(self, x):
-        x = self.block1(x); x = self.block2(x)
-        x = self.block3(x); x = self.pool(x)
+        x = self.stem(x)
+        x = self.layer1(x); x = self.layer2(x); x = self.layer3(x)
+        x = self.se(x);     x = self.pool(x)
         return self.classifier(x)
 
     def predict_proba(self, x):
@@ -119,15 +156,15 @@ class ReplayBuffer:
 
 # ─── Funciones de carga ───────────────────────────────────────────────────────
 @st.cache_resource
-def load_model_cached(path_str: str) -> ECG_CNN:
-    model = ECG_CNN(N_CLASSES)
+def load_model_cached(path_str: str) -> ECG_ResNet_SE:
+    model = ECG_ResNet_SE(N_CLASSES)
     model.load_state_dict(torch.load(path_str, map_location="cpu"))
     model.eval()
     return model
 
-def load_model_fresh(path: Path) -> ECG_CNN:
+def load_model_fresh(path: Path) -> ECG_ResNet_SE:
     """Carga sin cache — para usar después de reentrenar."""
-    model = ECG_CNN(N_CLASSES)
+    model = ECG_ResNet_SE(N_CLASSES)
     model.load_state_dict(torch.load(str(path), map_location="cpu"))
     model.eval()
     return model
@@ -531,24 +568,42 @@ with tab_history:
 with tab_compare:
     history_c = load_history()
 
-    # Resultados Fase 4 (referencia formal del informe)
-    STATIC_ACC   = 0.8872
-    STATIC_F1    = 0.7381
-    RETRAIN_ACC  = 0.9741
-    RETRAIN_F1   = 0.8954
+    # Baseline formal Fase 3B (modelo estatico — fijo)
+    STATIC_ACC = 0.9726
+    STATIC_F1  = 0.8955
+    # Referencia Fase 3B del modelo adaptativo (cuando no hay historial)
+    FASE3B_ACC = 0.9906
+    FASE3B_F1  = 0.9592
+
+    # Calcular metricas actuales del adaptativo desde el historial
+    if history_c:
+        from collections import defaultdict
+        import numpy as np
+        _por_reg = defaultdict(list)
+        for h in history_c:
+            _por_reg[h["registro"]].append(h)
+        _acc_fin = [_por_reg[r][-1]["acc_despues"] for r in _por_reg]
+        _f1_fin  = [_por_reg[r][-1]["f1_despues"]  for r in _por_reg]
+        RETRAIN_ACC = float(np.mean(_acc_fin))
+        RETRAIN_F1  = float(np.mean(_f1_fin))
+        kpi_fuente  = f"Promedio de {len(_por_reg)} registro(s) reentrenado(s)"
+    else:
+        RETRAIN_ACC = FASE3B_ACC
+        RETRAIN_F1  = FASE3B_F1
+        kpi_fuente  = "Referencia Fase 3B (sin sesiones en historial)"
 
     st.subheader("Modelo Base vs Modelo Reentrenado")
-    st.caption("Comparacion formal entre el modelo CNN estatico y el modelo con reentrenamiento continuo (Replay Buffer)")
+    st.caption("Comparacion formal entre el modelo ResNet-SE estatico y el modelo con reentrenamiento continuo (Replay Buffer)")
 
     # ── KPIs ──────────────────────────────────────────────────────────────
-    st.markdown("#### Resultados Formales (Fase 4 — 75,702 latidos)")
+    st.markdown(f"#### Rendimiento actual del modelo adaptativo — *{kpi_fuente}*")
     k1, k2, k3, k4 = st.columns(4)
     k1.metric("Accuracy Estatico",   f"{STATIC_ACC*100:.2f}%")
     k2.metric("Accuracy Adaptativo", f"{RETRAIN_ACC*100:.2f}%",
-              delta=f"+{(RETRAIN_ACC-STATIC_ACC)*100:.2f}%")
+              delta=f"{(RETRAIN_ACC-STATIC_ACC)*100:+.2f}%")
     k3.metric("F1 Macro Estatico",   f"{STATIC_F1:.4f}")
     k4.metric("F1 Macro Adaptativo", f"{RETRAIN_F1:.4f}",
-              delta=f"+{RETRAIN_F1-STATIC_F1:.4f}")
+              delta=f"{RETRAIN_F1-STATIC_F1:+.4f}")
 
     st.divider()
 
@@ -565,7 +620,7 @@ with tab_compare:
         ])
         fig_bar_acc.update_layout(
             title="Accuracy (%)", barmode="group",
-            yaxis=dict(range=[80, 102]), height=350,
+            yaxis=dict(range=[94, 101]), height=350,
             margin=dict(l=10, r=10, t=45, b=10),
             legend=dict(orientation="h", y=-0.2)
         )
@@ -590,11 +645,7 @@ with tab_compare:
 
     # ── Grafica 2: F1 final por registro (ultimo run) ─────────────────────
     if history_c:
-        from collections import defaultdict
-        por_reg = defaultdict(list)
-        for h in history_c:
-            por_reg[h["registro"]].append(h)
-
+        por_reg = _por_reg
         regs   = sorted(por_reg.keys())
         f1_fin = [por_reg[r][-1]["f1_despues"] for r in regs]
         acc_fin= [por_reg[r][-1]["acc_despues"] for r in regs]
@@ -647,7 +698,6 @@ with tab_compare:
 
         # ── Grafica 4: Mejora acumulada de F1 a lo largo de sesiones ──────
         st.markdown("#### Evolucion del F1 Macro promedio por sesion")
-        import numpy as np
         sesiones_unicas = sorted(set(h["fecha"] for h in history_c))
         f1_prom_por_sesion = []
         fechas_label = []
@@ -869,7 +919,7 @@ with tab_analysis:
                 "lr":          rt_lr,
             })
 
-            st.success("✅ Modelo reentrenado y guardado en `models/ADAPT-ECG-RETRAINED.pth`")
+            st.success("✅ Modelo reentrenado y guardado en `models/ecg_resnet_se_retrained.pth`")
             st.info(f"Buffer acumulado: **{len(rb):,}** latidos en memoria.")
 
             col_a, col_b, col_c = st.columns(3)
@@ -896,9 +946,9 @@ with tab_analysis:
         if uploaded is None:
             st.info("👈 Sube un archivo CSV con una columna numérica de señal ECG.")
             c1,c2,c3 = st.columns(3)
-            c1.metric("Modelo adaptativo", "97.41% Acc")
-            c2.metric("Modelo estático",   "88.72% Acc")
-            c3.metric("Mejora",            "+8.69%")
+            c1.metric("Modelo adaptativo", "99.06% Acc")
+            c2.metric("Modelo estático",   "97.26% Acc")
+            c3.metric("Mejora",            "+1.80%")
             st.markdown("""
             ### Formato del CSV esperado
             ```
